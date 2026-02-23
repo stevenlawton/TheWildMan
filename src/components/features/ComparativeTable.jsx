@@ -2,19 +2,20 @@ import { useMemo, useState } from "react";
 import Badge from "../ui/Badge";
 import Pill from "../ui/Pill";
 import { FIGURES } from "../../data/figures";
-import { ALL_ROLES, ALL_TRAITS, getRoleLabel, getTraitLabel } from "../../data/labels";
+import { ALL_ROLES, ALL_TRAITS, ALL_FIGURE_TYPES, getRoleLabel, getTraitLabel, getFigureTypeLabel, FIGURE_TYPE_COLOURS } from "../../data/labels";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 
-export default function ComparativeTable() {
+export default function ComparativeTable({ onFigureClick }) {
     const [q, setQ] = useState("");
     const [traitFilters, setTraitFilters] = useState([]);
     const [roleFilters, setRoleFilters] = useState([]);
+    const [typeFilters, setTypeFilters] = useState([]);
     const [showFilters, setShowFilters] = useState(false);
 
     const toggle = (arr, setArr, value) =>
         setArr(arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value]);
 
-    const activeFilterCount = traitFilters.length + roleFilters.length;
+    const activeFilterCount = traitFilters.length + roleFilters.length + typeFilters.length;
 
     const filtered = useMemo(() => {
         const query = q.trim().toLowerCase();
@@ -26,6 +27,7 @@ export default function ComparativeTable() {
 
         const traitActive = new Set(traitFilters);
         const roleActive = new Set(roleFilters);
+        const typeActive = new Set(typeFilters);
 
         const matchesTraits = (f) =>
             traitActive.size === 0 || f.traits.map(getTraitLabel).some((t) => traitActive.has(t));
@@ -33,8 +35,11 @@ export default function ComparativeTable() {
         const matchesRoles = (f) =>
             roleActive.size === 0 || f.roles.map(getRoleLabel).some((r) => roleActive.has(r));
 
-        return FIGURES.filter((f) => matchesQuery(f) && matchesTraits(f) && matchesRoles(f));
-    }, [q, traitFilters, roleFilters]);
+        const matchesType = (f) =>
+            typeActive.size === 0 || (f.figureType && typeActive.has(getFigureTypeLabel(f.figureType)));
+
+        return FIGURES.filter((f) => matchesQuery(f) && matchesTraits(f) && matchesRoles(f) && matchesType(f));
+    }, [q, traitFilters, roleFilters, typeFilters]);
 
     return (
         <div className="rounded-xl bg-white shadow-sm overflow-hidden">
@@ -71,6 +76,14 @@ export default function ComparativeTable() {
                 {showFilters && (
                     <div className="mt-4 space-y-3 animate-fade-in">
                         <div>
+                            <p className="text-xs text-steel mb-2 font-medium tracking-wider uppercase">Figure type</p>
+                            <div className="flex flex-wrap gap-1.5">
+                                {ALL_FIGURE_TYPES.map((t) => (
+                                    <Pill key={t} label={t} active={typeFilters.includes(t)} onClick={() => toggle(typeFilters, setTypeFilters, t)} />
+                                ))}
+                            </div>
+                        </div>
+                        <div>
                             <p className="text-xs text-steel mb-2 font-medium tracking-wider uppercase">Traits</p>
                             <div className="flex flex-wrap gap-1.5">
                                 {ALL_TRAITS.map((t) => (
@@ -88,7 +101,7 @@ export default function ComparativeTable() {
                         </div>
                         {activeFilterCount > 0 && (
                             <button
-                                onClick={() => { setTraitFilters([]); setRoleFilters([]); }}
+                                onClick={() => { setTraitFilters([]); setRoleFilters([]); setTypeFilters([]); }}
                                 className="flex items-center gap-1 text-xs text-steel hover:text-accent transition-colors"
                             >
                                 <X className="h-3 w-3" /> Clear all filters
@@ -104,6 +117,7 @@ export default function ComparativeTable() {
                     <thead>
                         <tr className="border-b border-black/5 bg-cream/50">
                             <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase">Figure</th>
+                            <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden sm:table-cell">Type</th>
                             <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase">Culture</th>
                             <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden md:table-cell">Region</th>
                             <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden lg:table-cell">Era</th>
@@ -115,11 +129,19 @@ export default function ComparativeTable() {
                         {filtered.map((f, i) => (
                             <tr
                                 key={f.id}
-                                className={`border-b border-black/3 transition-colors hover:bg-cream/60 ${
+                                className={`border-b border-black/3 transition-colors hover:bg-cream/60 cursor-pointer ${
                                     i % 2 === 0 ? "bg-transparent" : "bg-cream/30"
                                 }`}
+                                onClick={() => onFigureClick?.(f)}
                             >
                                 <td className="py-3.5 px-5 font-semibold text-black">{f.name}</td>
+                                <td className="py-3.5 px-5 hidden sm:table-cell">
+                                    {f.figureType && (
+                                        <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${FIGURE_TYPE_COLOURS[f.figureType] || ""}`}>
+                                            {getFigureTypeLabel(f.figureType)}
+                                        </span>
+                                    )}
+                                </td>
                                 <td className="py-3.5 px-5 text-steel text-xs">{f.culture}</td>
                                 <td className="py-3.5 px-5 text-steel text-xs hidden md:table-cell">{f.region}</td>
                                 <td className="py-3.5 px-5 text-steel text-xs hidden lg:table-cell">{f.era}</td>
@@ -137,7 +159,7 @@ export default function ComparativeTable() {
                         ))}
                         {filtered.length === 0 && (
                             <tr>
-                                <td colSpan={6} className="py-12 text-center text-steel">
+                                <td colSpan={7} className="py-12 text-center text-steel">
                                     No figures match your filters. Try removing some.
                                 </td>
                             </tr>

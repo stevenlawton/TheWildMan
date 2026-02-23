@@ -1,20 +1,28 @@
 import Badge from "../ui/Badge";
 import { FIGURES } from "../../data/figures";
-import { getRoleLabel, getTraitLabel } from "../../data/labels";
+import { getRoleLabel, getTraitLabel, getFigureTypeLabel, FIGURE_TYPE_COLOURS } from "../../data/labels";
 
-export default function FiguresGrid() {
+export default function FiguresGrid({ onFigureClick }) {
     return (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {FIGURES.map((f) => (
                 <article
                     key={f.id}
-                    className="group relative rounded-xl bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md"
+                    className="group relative rounded-xl bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md cursor-pointer"
+                    onClick={() => onFigureClick?.(f)}
                 >
                     {/* Orange accent bar */}
                     <div className="absolute left-0 top-4 bottom-4 w-[3px] rounded-full bg-accent/30 group-hover:bg-accent transition-colors duration-300" />
 
                     <div className="pl-3">
-                        <h3 className="font-bold text-black text-lg">{f.name}</h3>
+                        <div className="flex items-start justify-between gap-2">
+                            <h3 className="font-bold text-black text-lg">{f.name}</h3>
+                            {f.figureType && (
+                                <span className={`shrink-0 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${FIGURE_TYPE_COLOURS[f.figureType] || ""}`}>
+                                    {getFigureTypeLabel(f.figureType)}
+                                </span>
+                            )}
+                        </div>
                         <p className="text-xs text-steel mt-0.5">
                             {f.culture} · {f.region} · {f.era}
                         </p>

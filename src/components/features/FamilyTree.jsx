@@ -1,13 +1,23 @@
 import { useMemo, useRef, useState, useEffect, useCallback } from "react";
-import { TREE_NODES, TREE_EDGES } from "../../data/tree";
+import { TREE_NODES, TREE_EDGES, EDGE_TYPE_LABELS } from "../../data/tree";
 import { ZoomIn, ZoomOut, Maximize2, Move } from "lucide-react";
 
-const ROOT_IDS = ["A1", "E2", "G1"];
 const EXPLICIT_ORDER = { A1: ["B2", "B3", "B1"] };
 
-const MIN_ZOOM = 0.2;
+const MIN_ZOOM = 0.15;
 const MAX_ZOOM = 1.5;
 const ZOOM_STEP = 0.15;
+
+const EDGE_STYLES = {
+    direct:    { stroke: "#CC5200", width: 1.5, dash: "",      opacity: 0.6, marker: "arrow" },
+    substrate: { stroke: "#666666", width: 1.2, dash: "6 3",   opacity: 0.45, marker: "arrow-dim" },
+    parallel:  { stroke: "#666666", width: 1,   dash: "2 4",   opacity: 0.35, marker: "arrow-dim" },
+};
+
+// Build a lookup from edge key -> type
+const edgeTypeMap = new Map(
+    TREE_EDGES.map(e => [`${e.from}->${e.to}`, e.type || "direct"])
+);
 
 export default function FamilyTree() {
     const containerRef = useRef(null);
@@ -28,29 +38,42 @@ export default function FamilyTree() {
         return () => ro.disconnect();
     }, []);
 
-    // Layout computation (unchanged)
+    // Layout computation
     const { pos, primaryEdges, secondaryEdges, width, height, nodeW, nodeH } = useMemo(() => {
-        const nodeW = 260;
-        const nodeH = 96;
-        const hGap = 28;
-        const vGap = 56;
-        const rootGap = 120;
-        const pad = { l: 48, t: 48, r: 48, b: 48 };
+        const nodeW = 240;
+        const nodeH = 86;
+        const hGap = 24;
+        const vGap = 48;
+        const rootGap = 80;
+        const pad = { l: 40, t: 40, r: 40, b: 40 };
 
         const byId = new Map(TREE_NODES.map(n => [n.id, { ...n }]));
         const childrenAll = new Map([...byId.keys()].map(id => [id, []]));
+        const hasParent = new Set();
         for (const e of TREE_EDGES) {
-            if (byId.has(e.from) && byId.has(e.to)) childrenAll.get(e.from).push(e.to);
+            if (byId.has(e.from) && byId.has(e.to)) {
+                childrenAll.get(e.from).push(e.to);
+                hasParent.add(e.to);
+            }
         }
 
+        // Auto-detect roots: nodes with no incoming edges
+        const roots = TREE_NODES
+            .filter(n => !hasParent.has(n.id))
+            .map(n => n.id);
+
         const include = new Set();
-        const roots = ROOT_IDS.filter(id => byId.has(id));
         function dfs(id) {
             if (include.has(id)) return;
             include.add(id);
             for (const c of childrenAll.get(id) || []) dfs(c);
         }
         roots.forEach(dfs);
+
+        // Also include any orphaned nodes (no edges at all)
+        for (const n of TREE_NODES) {
+            if (!include.has(n.id)) include.add(n.id);
+        }
 
         const children = new Map([...byId.keys()].map(id => [id, []]));
         for (const p of include) {
@@ -136,7 +159,6 @@ export default function FamilyTree() {
         const scaleY = viewH / height;
         const fitZoom = Math.min(scaleX, scaleY, 1);
         setZoom(fitZoom);
-        // Centre the tree
         setPan({
             x: (containerSize.w - width * fitZoom) / 2,
             y: (viewH - height * fitZoom) / 2,
@@ -157,7 +179,6 @@ export default function FamilyTree() {
 
     const zoomAtPoint = useCallback((newZoom, cx, cy) => {
         const clamped = clampZoom(newZoom);
-        // Adjust pan so the point under the cursor stays fixed
         setPan(prev => ({
             x: cx - (cx - prev.x) * (clamped / zoom),
             y: cy - (cy - prev.y) * (clamped / zoom),
@@ -167,14 +188,12 @@ export default function FamilyTree() {
 
     const handleZoomIn = () => {
         const cx = containerSize.w / 2;
-        const cy = 250;
-        zoomAtPoint(zoom + ZOOM_STEP, cx, cy);
+        zoomAtPoint(zoom + ZOOM_STEP, cx, 250);
     };
 
     const handleZoomOut = () => {
         const cx = containerSize.w / 2;
-        const cy = 250;
-        zoomAtPoint(zoom - ZOOM_STEP, cx, cy);
+        zoomAtPoint(zoom - ZOOM_STEP, cx, 250);
     };
 
     // Wheel zoom
@@ -212,6 +231,33 @@ export default function FamilyTree() {
 
     const handlePointerUp = () => setDragging(false);
 
+    function getEdgeStyle(from, to) {
+        const key = `${from}->${to}`;
+        const type = edgeTypeMap.get(key) || "direct";
+        return EDGE_STYLES[type];
+    }
+
+    function renderEdge(from, to, i, prefix) {
+        const a = pos[from], b = pos[to];
+        if (!a || !b) return null;
+        const style = getEdgeStyle(from, to);
+        const x1 = a.x + nodeW / 2, y1 = a.y + nodeH;
+        const x2 = b.x + nodeW / 2, y2 = b.y;
+        const my = (y1 + y2) / 2;
+        return (
+            <path
+                key={`${prefix}-${i}`}
+                d={`M ${x1} ${y1} C ${x1} ${my}, ${x2} ${my}, ${x2} ${y2}`}
+                fill="none"
+                stroke={style.stroke}
+                strokeWidth={style.width}
+                strokeDasharray={style.dash}
+                strokeOpacity={style.opacity}
+                markerEnd={`url(#${style.marker})`}
+            />
+        );
+    }
+
     const pct = Math.round(zoom * 100);
 
     return (
@@ -228,6 +274,23 @@ export default function FamilyTree() {
                     <Maximize2 className="h-4 w-4" />
                 </button>
                 <span className="text-xs text-steel tabular-nums ml-1 min-w-[3ch] text-right">{pct}%</span>
+
+                {/* Legend */}
+                <div className="ml-4 hidden sm:flex items-center gap-3 text-[10px] text-steel">
+                    <span className="flex items-center gap-1">
+                        <svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#CC5200" strokeWidth="1.5" strokeOpacity="0.6" /></svg>
+                        {EDGE_TYPE_LABELS.direct}
+                    </span>
+                    <span className="flex items-center gap-1">
+                        <svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#666" strokeWidth="1.2" strokeDasharray="6 3" strokeOpacity="0.45" /></svg>
+                        {EDGE_TYPE_LABELS.substrate}
+                    </span>
+                    <span className="flex items-center gap-1">
+                        <svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#666" strokeWidth="1" strokeDasharray="2 4" strokeOpacity="0.35" /></svg>
+                        {EDGE_TYPE_LABELS.parallel}
+                    </span>
+                </div>
+
                 <div className="ml-auto flex items-center gap-1.5 text-xs text-steel/60">
                     <Move className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline">Drag to pan, scroll to zoom</span>
@@ -263,37 +326,8 @@ export default function FamilyTree() {
                             </marker>
                         </defs>
 
-                        {primaryEdges.map(([from, to], i) => {
-                            const a = pos[from], b = pos[to];
-                            if (!a || !b) return null;
-                            const x1 = a.x + nodeW / 2, y1 = a.y + nodeH;
-                            const x2 = b.x + nodeW / 2, y2 = b.y;
-                            const my = (y1 + y2) / 2;
-                            return (
-                                <path
-                                    key={`p-${i}`}
-                                    d={`M ${x1} ${y1} C ${x1} ${my}, ${x2} ${my}, ${x2} ${y2}`}
-                                    fill="none" stroke="#CC5200" strokeWidth="1.5" strokeOpacity="0.5"
-                                    markerEnd="url(#arrow)"
-                                />
-                            );
-                        })}
-
-                        {secondaryEdges.map(([from, to], i) => {
-                            const a = pos[from], b = pos[to];
-                            if (!a || !b) return null;
-                            const x1 = a.x + nodeW / 2, y1 = a.y + nodeH;
-                            const x2 = b.x + nodeW / 2, y2 = b.y;
-                            const my = (y1 + y2) / 2;
-                            return (
-                                <path
-                                    key={`s-${i}`}
-                                    d={`M ${x1} ${y1} C ${x1} ${my}, ${x2} ${my}, ${x2} ${y2}`}
-                                    fill="none" stroke="#666666" strokeWidth="1" strokeDasharray="4 4"
-                                    strokeOpacity="0.4" markerEnd="url(#arrow-dim)"
-                                />
-                            );
-                        })}
+                        {primaryEdges.map(([from, to], i) => renderEdge(from, to, i, "p"))}
+                        {secondaryEdges.map(([from, to], i) => renderEdge(from, to, i, "s"))}
                     </svg>
 
                     {Object.entries(pos).map(([id, p]) => {
@@ -302,13 +336,13 @@ export default function FamilyTree() {
                         return (
                             <div
                                 key={id}
-                                className="absolute rounded-lg border border-black/8 bg-white p-3 text-sm leading-snug shadow-sm hover:shadow-md hover:border-accent/30 transition-all duration-200"
+                                className="absolute rounded-lg border border-black/8 bg-white p-2.5 text-xs leading-snug shadow-sm hover:shadow-md hover:border-accent/30 transition-all duration-200"
                                 style={{ left: p.x, top: p.y, width: nodeW, height: nodeH }}
                                 title={lines.join("\n")}
                             >
-                                <div className="font-semibold text-black">{lines[0]}</div>
+                                <div className="font-semibold text-black text-sm">{lines[0]}</div>
                                 {lines.slice(1).map((ln, i) => (
-                                    <div key={i} className="text-xs text-steel mt-0.5">{ln}</div>
+                                    <div key={i} className="text-[11px] text-steel mt-0.5">{ln}</div>
                                 ))}
                             </div>
                         );
