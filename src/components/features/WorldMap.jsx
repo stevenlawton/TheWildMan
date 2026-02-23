@@ -223,6 +223,31 @@ export default function WorldMap({ onFigureClick }) {
                 })}
             </svg>
 
+            {/* Region selector -- tappable on mobile where markers are too small */}
+            <div className="mt-4 flex flex-wrap gap-2">
+                {Object.entries(REGION_COORDS).map(([region]) => {
+                    const count = regionCounts[region] || 0;
+                    if (!count) return null;
+                    const isSelected = selectedRegion === region;
+                    return (
+                        <button
+                            key={region}
+                            onClick={() => handleMarkerClick(region)}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors duration-200 ${
+                                isSelected
+                                    ? "bg-accent text-white border-accent"
+                                    : "bg-white text-steel border-black/10 hover:border-accent hover:text-accent"
+                            }`}
+                        >
+                            {region}
+                            <span className={`text-[10px] ${isSelected ? "text-white/70" : "text-steel/50"}`}>
+                                {count}
+                            </span>
+                        </button>
+                    );
+                })}
+            </div>
+
             {selectedRegion && (
                 <div className="mt-6 animate-fade-in">
                     <div className="flex items-center justify-between mb-4">
