@@ -98,6 +98,20 @@ export default function FigureDetail({ figure, onClose }) {
                 </div>
 
                 <div className="px-6 py-5 space-y-5">
+                    {/* Artwork */}
+                    {f.image && (
+                        <div>
+                            <img
+                                src={f.image.src}
+                                alt={f.image.alt}
+                                className="w-full max-h-[250px] object-contain rounded-lg bg-black/5"
+                            />
+                            <p className="mt-1.5 text-[11px] text-steel">
+                                {f.image.attribution}{f.image.date ? `, ${f.image.date}` : ""} · {f.image.license}
+                            </p>
+                        </div>
+                    )}
+
                     {/* Figure type + date */}
                     <div className="flex flex-wrap items-center gap-2">
                         {f.figureType && (
