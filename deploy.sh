@@ -9,7 +9,7 @@ echo "=== TheWildMan Deploy ==="
 
 # Build with correct base path
 npm run build:client -- --base=/wildman/
-npm run build:server && npm run build:prerender
+npm run build:server -- --base=/wildman/ && npm run build:prerender
 
 # Copy index.html as 404.html for SPA fallback
 cp dist/index.html dist/404.html
