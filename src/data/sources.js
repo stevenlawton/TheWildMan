@@ -30,7 +30,7 @@ export const SOURCES = [
     { id: "lebling-2010", author: "Lebling, Robert", title: "Legends of the Fire Spirits: Jinn and Genies from Arabia to Zanzibar", publisher: "I.B. Tauris", year: 2010, type: "book", region: ["Middle East", "Africa"] },
     { id: "rattray-1929", author: "Rattray, Robert Sutherland", title: "Ashanti", publisher: "Clarendon Press", year: 1929, type: "book", region: ["Africa"] },
     { id: "knappert-1971", author: "Knappert, Jan", title: "Myths and Legends of the Congo", publisher: "Heinemann", year: 1971, type: "book", region: ["Africa"] },
-    { id: "kuusela-2020", author: "Kuusela, Tommy", title: "Huldra -- In Between Human and Animal", publisher: "RMN Newsletter", year: 2020, type: "article", region: ["Northern Europe"] },
+    { id: "kuusela-2020", author: "Kuusela, Tommy", title: "Huldra - In Between Human and Animal", publisher: "RMN Newsletter", year: 2020, type: "article", region: ["Northern Europe"] },
 ];
 
 export const SOURCE_TYPE_LABELS = {

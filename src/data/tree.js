@@ -104,7 +104,7 @@ export const TREE_EDGES = [
     // Ancient Near East cluster
     {from: "A1", to: "A2", type: "direct"},
 
-    // Mesopotamia -> Greek/Roman (via Pliny, Isidore -- indirect/transformative)
+    // Mesopotamia -> Greek/Roman (via Pliny, Isidore - indirect/transformative)
     {from: "A1", to: "B1", type: "direct"},
     {from: "A1", to: "B2", type: "direct"},
     {from: "B2", to: "B3", type: "direct"},

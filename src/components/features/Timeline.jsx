@@ -15,13 +15,13 @@ function formatYear(y) {
 // Group figures into time periods for a readable timeline
 const PERIODS = [
     { key: "deep", label: "Deep Antiquity", range: "25,000+ BCE", min: -Infinity, max: -3000 },
-    { key: "ancient", label: "Ancient World", range: "3000 BCE -- 1 CE", min: -3000, max: 1 },
-    { key: "medieval", label: "Medieval", range: "1 -- 1500 CE", min: 1, max: 1500 },
-    { key: "early-modern", label: "Early Modern", range: "1500 -- 1800 CE", min: 1500, max: 1800 },
-    { key: "modern", label: "Modern Records", range: "1800 CE -- present", min: 1800, max: Infinity },
+    { key: "ancient", label: "Ancient World", range: "3000 BCE - 1 CE", min: -3000, max: 1 },
+    { key: "medieval", label: "Medieval", range: "1 - 1500 CE", min: 1, max: 1500 },
+    { key: "early-modern", label: "Early Modern", range: "1500 - 1800 CE", min: 1500, max: 1800 },
+    { key: "modern", label: "Modern Records", range: "1800 CE - present", min: 1800, max: Infinity },
 ];
 
-export default function Timeline() {
+export default function Timeline({ onFigureClick }) {
     const regions = useMemo(() => {
         const set = new Set(FIGURES.map(f => f.region));
         return ["All", ...Array.from(set).sort()];
@@ -76,7 +76,12 @@ export default function Timeline() {
                                 {period.figures.map(f => (
                                     <div
                                         key={f.id}
-                                        className="group flex items-start gap-3 rounded-lg bg-white p-3 shadow-sm hover:shadow-md transition-shadow duration-200"
+                                        className="group flex items-start gap-3 rounded-lg bg-white p-3 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent/50"
+                                        onClick={() => onFigureClick?.(f)}
+                                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onFigureClick?.(f); } }}
+                                        tabIndex={0}
+                                        role="button"
+                                        aria-label={f.name}
                                     >
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 flex-wrap">

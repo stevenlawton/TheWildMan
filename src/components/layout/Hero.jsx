@@ -15,7 +15,7 @@ export default function Hero({ setActiveTab }) {
                 <div className="animate-fade-up h-1 w-16 bg-accent mt-6 mb-8" style={{ animationDelay: "0.3s" }} />
 
                 <p className="animate-fade-up text-xl md:text-2xl text-steel max-w-2xl leading-relaxed" style={{ animationDelay: "0.4s" }}>
-                    Nature personifications and wild-beings across world folklore -- from Enkidu and the Green Man to Leshy, Wendigo, Yowie, and beyond.
+                    Nature personifications and wild-beings across world folklore - from Enkidu and the Green Man to Leshy, Wendigo, Yowie, and beyond.
                 </p>
 
                 <div className="animate-fade-up flex flex-wrap gap-3 mt-10" style={{ animationDelay: "0.5s" }}>

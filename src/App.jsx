@@ -56,7 +56,7 @@ export default function WildOneSite() {
                             <div className="rounded-xl bg-white p-6 shadow-sm">
                                 <h3 className="font-bold text-black text-lg mb-2">Personification of Nature</h3>
                                 <p className="text-steel leading-relaxed">
-                                    Figures who embody the untamed world -- forest, mountain, bush, desert. Nature given human shape, standing at the boundary between civilisation and wilderness.
+                                    Figures who embody the untamed world - forest, mountain, bush, desert. Nature given human shape, standing at the boundary between civilisation and wilderness.
                                 </p>
                             </div>
                             <div className="rounded-xl bg-white p-6 shadow-sm">
@@ -94,7 +94,7 @@ export default function WildOneSite() {
             {activeTab === "timeline" && (
                 <div id="tabpanel-timeline" role="tabpanel" tabIndex={-1}>
                     <Section id="timeline" title="Attested timeline">
-                        <Timeline />
+                        <Timeline onFigureClick={handleFigureClick} />
                     </Section>
                 </div>
             )}
@@ -102,7 +102,7 @@ export default function WildOneSite() {
             {activeTab === "lineage" && (
                 <div id="tabpanel-lineage" role="tabpanel" tabIndex={-1}>
                     <Section id="lineage" title="Conceptual lineage">
-                        <FamilyTree />
+                        <FamilyTree onFigureClick={handleFigureClick} />
                     </Section>
                 </div>
             )}

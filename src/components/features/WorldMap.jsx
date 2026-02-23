@@ -60,7 +60,7 @@ function ringsToPath(rings) {
             segments.pop();
         }
 
-        // Each segment now starts and ends at a map edge -- Z closes along that edge
+        // Each segment now starts and ends at a map edge - Z closes along that edge
         return segments.map(seg => projectRing(seg)).join("");
     }).join("");
 }
@@ -186,7 +186,7 @@ export default function WorldMap({ onFigureClick }) {
                             }}
                             tabIndex={0}
                             role="button"
-                            aria-label={`${region} -- ${count} ${count === 1 ? "figure" : "figures"}`}
+                            aria-label={`${region} - ${count} ${count === 1 ? "figure" : "figures"}`}
                         >
                             {isSelected && (
                                 <circle
@@ -217,7 +217,7 @@ export default function WorldMap({ onFigureClick }) {
                                     {count}
                                 </text>
                             )}
-                            <title>{`${region} -- ${count} ${count === 1 ? "figure" : "figures"}`}</title>
+                            <title>{`${region} - ${count} ${count === 1 ? "figure" : "figures"}`}</title>
                         </g>
                     );
                 })}
@@ -229,7 +229,7 @@ export default function WorldMap({ onFigureClick }) {
                         <div>
                             <h3 className="font-bold text-black text-xl">{selectedRegion}</h3>
                             <p className="text-sm text-steel mt-0.5">
-                                {REGION_META[selectedRegion]} -- {selectedFigures.length}{" "}
+                                {REGION_META[selectedRegion]} - {selectedFigures.length}{" "}
                                 {selectedFigures.length === 1 ? "figure" : "figures"}
                             </p>
                         </div>
@@ -266,7 +266,7 @@ export default function WorldMap({ onFigureClick }) {
                                             </span>
                                         )}
                                     </div>
-                                    <p className="text-xs text-steel mt-0.5">{f.culture} -- {f.era}</p>
+                                    <p className="text-xs text-steel mt-0.5">{f.culture} - {f.era}</p>
                                     <p className="mt-3 text-sm text-steel leading-relaxed line-clamp-3">{f.notes}</p>
                                     <div className="mt-3 flex flex-wrap gap-1.5">
                                         {f.traits.map((t) => <Badge key={t} variant="trait">{getTraitLabel(t)}</Badge>)}

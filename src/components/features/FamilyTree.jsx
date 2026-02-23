@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState, useEffect, useCallback } from "react";
 import { TREE_NODES, TREE_EDGES, EDGE_TYPE_LABELS } from "../../data/tree";
+import { FIGURES } from "../../data/figures";
 import { ZoomIn, ZoomOut, Maximize2, Move } from "lucide-react";
 
 const EXPLICIT_ORDER = { A1: ["B2", "B3", "B1"] };
@@ -19,7 +20,21 @@ const edgeTypeMap = new Map(
     TREE_EDGES.map(e => [`${e.from}->${e.to}`, e.type || "direct"])
 );
 
-export default function FamilyTree() {
+// Match tree nodes to FIGURES entries by first word of the name
+const figureLookup = new Map();
+for (const f of FIGURES) {
+    figureLookup.set(f.name.toLowerCase(), f);
+    const first = f.name.split(/[\s/]/)[0].toLowerCase();
+    if (!figureLookup.has(first)) figureLookup.set(first, f);
+}
+
+function findFigure(nodeLabel) {
+    const name = nodeLabel.split("\n")[0].trim();
+    return figureLookup.get(name.toLowerCase()) ||
+           figureLookup.get(name.split(/[\s/&]/)[0].toLowerCase());
+}
+
+export default function FamilyTree({ onFigureClick }) {
     const containerRef = useRef(null);
     const [containerSize, setContainerSize] = useState({ w: 0, h: 0 });
     const [zoom, setZoom] = useState(1);
@@ -282,7 +297,7 @@ export default function FamilyTree() {
                 </button>
                 <span className="text-xs text-steel tabular-nums ml-1 min-w-[3ch] text-right">{pct}%</span>
 
-                {/* Legend -- condensed on mobile, full on sm+ */}
+                {/* Legend - condensed on mobile, full on sm+ */}
                 <div className="ml-4 flex items-center gap-3 text-[10px] text-steel">
                     <span className="flex items-center gap-1">
                         <svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#CC5200" strokeWidth="1.5" strokeOpacity="0.6" /></svg>
@@ -340,12 +355,17 @@ export default function FamilyTree() {
                     {Object.entries(pos).map(([id, p]) => {
                         const n = TREE_NODES.find(x => x.id === id) || {};
                         const lines = String(n.label ?? n.id).split("\n");
+                        const fig = findFigure(n.label || "");
                         return (
                             <div
                                 key={id}
-                                className="absolute rounded-lg border border-black/8 bg-white p-2.5 text-xs leading-snug shadow-sm hover:shadow-md hover:border-accent/30 transition-all duration-200"
+                                className={`absolute rounded-lg border border-black/8 bg-white p-2.5 text-xs leading-snug shadow-sm hover:shadow-md hover:border-accent/30 transition-all duration-200 ${fig ? "cursor-pointer" : ""}`}
                                 style={{ left: p.x, top: p.y, width: nodeW, height: nodeH }}
                                 title={lines.join("\n")}
+                                onClick={fig ? (e) => { e.stopPropagation(); onFigureClick?.(fig); } : undefined}
+                                onKeyDown={fig ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); onFigureClick?.(fig); } } : undefined}
+                                tabIndex={fig ? 0 : undefined}
+                                role={fig ? "button" : undefined}
                             >
                                 <div className="font-semibold text-black text-sm">{lines[0]}</div>
                                 {lines.slice(1).map((ln, i) => (

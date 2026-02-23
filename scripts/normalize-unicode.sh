@@ -49,7 +49,8 @@ process_file() {
 
   local original normalized
   original=$(cat "$fp")
-  normalized=$(printf '%s' "$original" | uvx splatllm "${SPLATLLM_FLAGS[@]}" 2>/dev/null) || return
+  # SplatLLM converts em dashes to --, collapse to single hyphen (space-padded to avoid CSS vars)
+  normalized=$(printf '%s' "$original" | uvx splatllm "${SPLATLLM_FLAGS[@]}" 2>/dev/null | sed 's/ -- / - /g') || return
 
   if [[ "$original" != "$normalized" ]]; then
     dirty+=("$fp")
