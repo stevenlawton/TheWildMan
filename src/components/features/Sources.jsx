@@ -1,16 +1,29 @@
+const SOURCES = [
+    { text: "Epic of Gilgamesh", desc: "Enkidu as archetypal Wild Man." },
+    { text: "Pausanias, Ovid", desc: "Classical sources on Pan, Satyrs, Silvanus/Faunus." },
+    { text: "Medieval church carvings", desc: "Green Man foliate heads catalogued across Europe." },
+    { text: "Slavic folklore collections", desc: "Leshy; Siberian/Yakut Evenki oral accounts for Chuchuna." },
+    { text: "Himalayan ethnographies", desc: "Tibetan/Sherpa oral traditions concerning Yeti/Mi-go." },
+    { text: "Indigenous oral traditions", desc: "Salish/Coast \u2014 Sasquatch; Algonquian \u2014 Wendigo." },
+    { text: "Brazilian & Aboriginal accounts", desc: "Mapinguari, Curupira, Yowie, Quinkin, Pangkarlangu." },
+];
+
 export default function Sources() {
-    return (<div className="prose prose-neutral max-w-none">
-            <ul>
-                <li><em>Epic of Gilgamesh</em> - Enkidu as archetypal Wild Man.</li>
-                <li>Classical sources on Pan, Satyrs, Silvanus/Faunus - Pausanias, Ovid.</li>
-                <li>Medieval iconography: Green Man foliate heads catalogued in European church carvings.</li>
-                <li>Slavic folklore collections on Leshy; Siberian/Yakut Evenki oral accounts for Chuchuna.</li>
-                <li>Himalayan ethnographies and Tibetan/Sherpa oral traditions concerning Yeti/Mi-go.</li>
-                <li>North American Indigenous oral traditions: Salish/Coast tales - Sasquatch; Algonquian narratives - Wendigo.</li>
-                <li>Brazilian folklore on Mapinguari and Curupira; Aboriginal Dreaming accounts for Yowie, Quinkin, Pangkarlangu.</li>
-            </ul>
-            <p className="text-sm text-neutral-600">
+    return (
+        <div className="space-y-3">
+            {SOURCES.map((s, i) => (
+                <div key={i} className="flex gap-4 items-start group">
+                    <span className="flex-shrink-0 mt-2 h-1.5 w-1.5 rounded-full bg-accent/50 group-hover:bg-accent transition-colors duration-200" />
+                    <p className="text-sm text-steel leading-relaxed">
+                        <span className="text-black font-medium">{s.text}</span>
+                        {" \u2014 "}
+                        {s.desc}
+                    </p>
+                </div>
+            ))}
+            <p className="text-xs text-steel mt-6 pt-4 border-t border-black/5">
                 Each figure above is drawn from attested folklore or material culture; this site avoids invented composite myths.
             </p>
-        </div>);
+        </div>
+    );
 }

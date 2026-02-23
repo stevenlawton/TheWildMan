@@ -1,8 +1,8 @@
-import React, {useEffect} from "react";
-import {BookOpenCheck, Globe, Table as TableIcon, Trees} from "lucide-react";
+import React, { useEffect } from "react";
+import { BookOpenCheck, Globe, Table as TableIcon, Trees, GitBranch } from "lucide-react";
 
-import {FIGURES} from "./data/figures";
-import {norm, ROLE_LABELS, TRAIT_LABELS} from "./data/labels";
+import { FIGURES } from "./data/figures";
+import { norm, ROLE_LABELS, TRAIT_LABELS } from "./data/labels";
 
 import Section from "./components/ui/Section";
 import FiguresGrid from "./components/features/FiguresGrid";
@@ -15,8 +15,6 @@ import Header from "./components/layout/Header";
 import Hero from "./components/layout/Hero";
 import Footer from "./components/layout/Footer";
 
-
-// Self-tests
 function useSelfTests() {
     useEffect(() => {
         const missingTraitLabels = [];
@@ -31,56 +29,58 @@ function useSelfTests() {
     }, []);
 }
 
-// ------------------ App ------------------
 export default function WildOneSite() {
     useSelfTests();
 
     return (
-        <div className="min-h-screen bg-neutral-50 text-neutral-900">
-            {/* Nav */}
-            <Header/>
+        <div className="min-h-screen bg-cream text-ink">
+            <Header />
+            <Hero />
 
-            {/* Hero */}
-            <Hero/>
-
-            {/* What & Why */}
-            <Section id="what" title="What is the 'Wild One' archetype and why does it recur?" icon={<Trees className="h-6 w-6"/>}>
-                <div className="prose prose-neutral max-w-none">
-                    <ul>
-                        <li><strong>Personification of Nature:</strong> figures who embody the untamed world - forest, mountain, bush, desert.</li>
-                        <li><strong>Common traits:</strong> hair or leaves, liminal habitat, guardian or punisher role, and sometimes fertility or taboo themes.</li>
-                        <li><strong>Independent emergence:</strong> similar stories appear in cultures with little or no contact, suggesting shared human responses to wilderness.</li>
-                    </ul>
+            <Section id="what" title="What is the 'Wild One' archetype?">
+                <div className="grid md:grid-cols-3 gap-5">
+                    <div className="rounded-xl bg-white p-6 shadow-sm">
+                        <h3 className="font-bold text-black text-lg mb-2">Personification of Nature</h3>
+                        <p className="text-steel leading-relaxed">
+                            Figures who embody the untamed world — forest, mountain, bush, desert. Nature given human shape, standing at the boundary between civilisation and wilderness.
+                        </p>
+                    </div>
+                    <div className="rounded-xl bg-white p-6 shadow-sm">
+                        <h3 className="font-bold text-black text-lg mb-2">Shared Traits</h3>
+                        <p className="text-steel leading-relaxed">
+                            Hair or leaves covering the body, liminal habitats, guardian or punisher roles, and sometimes fertility or taboo themes. Remarkably consistent across cultures.
+                        </p>
+                    </div>
+                    <div className="rounded-xl bg-white p-6 shadow-sm">
+                        <h3 className="font-bold text-black text-lg mb-2">Independent Emergence</h3>
+                        <p className="text-steel leading-relaxed">
+                            Similar stories appear in cultures with little or no contact, suggesting shared human responses to wilderness rather than a single origin myth.
+                        </p>
+                    </div>
                 </div>
             </Section>
 
-            {/* Global Figures (cards) */}
-            <Section id="figures" title="Global figures at a glance" icon={<Globe className="h-6 w-6"/>}>
-                <FiguresGrid/>
+            <Section id="figures" title="Global figures at a glance">
+                <FiguresGrid />
             </Section>
 
-            {/* Comparative Table with filters */}
-            <Section id="table" title="Comparative table and filters" icon={<TableIcon className="h-6 w-6"/>}>
-                <ComparativeTable/>
+            <Section id="table" title="Comparative table">
+                <ComparativeTable />
             </Section>
 
-            {/* Timeline */}
-            <Section id="timeline" title="Attested timeline (selected)" icon={<BookOpenCheck className="h-6 w-6"/>}>
-                <Timeline/>
+            <Section id="timeline" title="Attested timeline">
+                <Timeline />
             </Section>
 
-            {/* Family Tree */}
-            <Section id="tree" title="Family tree (conceptual lineage)" icon={<Trees className="h-6 w-6"/>}>
-                <FamilyTree/>
+            <Section id="tree" title="Conceptual lineage">
+                <FamilyTree />
             </Section>
 
-            {/* Sources */}
-            <Section id="sources" title="Primary references & further reading" icon={<BookOpenCheck className="h-6 w-6"/>}>
-                <Sources/>
+            <Section id="sources" title="References & further reading">
+                <Sources />
             </Section>
 
-
-            <Footer/>
+            <Footer />
         </div>
     );
 }

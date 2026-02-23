@@ -1,97 +1,157 @@
-import {useMemo, useState} from "react";
+import { useMemo, useState } from "react";
 import Badge from "../ui/Badge";
 import Pill from "../ui/Pill";
-import {FIGURES} from "../../data/figures";
-import {ALL_ROLES, ALL_TRAITS, getRoleLabel, getTraitLabel} from "../../data/labels";
-import {Filter, Search, Table as TableIcon} from "lucide-react";
+import { FIGURES } from "../../data/figures";
+import { ALL_ROLES, ALL_TRAITS, getRoleLabel, getTraitLabel } from "../../data/labels";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 
 export default function ComparativeTable() {
     const [q, setQ] = useState("");
     const [traitFilters, setTraitFilters] = useState([]);
     const [roleFilters, setRoleFilters] = useState([]);
+    const [showFilters, setShowFilters] = useState(false);
 
-    const toggle = (arr, setArr, value) => setArr(arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value]);
+    const toggle = (arr, setArr, value) =>
+        setArr(arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value]);
+
+    const activeFilterCount = traitFilters.length + roleFilters.length;
 
     const filtered = useMemo(() => {
         const query = q.trim().toLowerCase();
-        const matchesQuery = (f) => !query || [f.name, f.culture, f.region, f.era, f.notes]
-            .filter(Boolean)
-            .some((s) => s.toLowerCase().includes(query));
+        const matchesQuery = (f) =>
+            !query ||
+            [f.name, f.culture, f.region, f.era, f.notes]
+                .filter(Boolean)
+                .some((s) => s.toLowerCase().includes(query));
 
         const traitActive = new Set(traitFilters);
         const roleActive = new Set(roleFilters);
 
-        const matchesTraits = (f) => traitActive.size === 0 || f.traits.map(getTraitLabel).some((t) => traitActive.has(t));
+        const matchesTraits = (f) =>
+            traitActive.size === 0 || f.traits.map(getTraitLabel).some((t) => traitActive.has(t));
 
-        const matchesRoles = (f) => roleActive.size === 0 || f.roles.map(getRoleLabel).some((r) => roleActive.has(r));
+        const matchesRoles = (f) =>
+            roleActive.size === 0 || f.roles.map(getRoleLabel).some((r) => roleActive.has(r));
 
         return FIGURES.filter((f) => matchesQuery(f) && matchesTraits(f) && matchesRoles(f));
     }, [q, traitFilters, roleFilters]);
 
-    return (<div className="rounded-3xl border bg-white p-5 shadow-sm">
-            <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-                <div className="flex items-center gap-2">
-                    <Search className="h-4 w-4"/>
-                    <input
-                        value={q}
-                        onChange={(e) => setQ(e.target.value)}
-                        placeholder="Search by name, culture, region, era or notes..."
-                        className="w-full md:w-96 border rounded-xl px-3 py-2 text-sm"
-                    />
+    return (
+        <div className="rounded-xl bg-white shadow-sm overflow-hidden">
+            {/* Search & Filter bar */}
+            <div className="p-4 md:p-5 border-b border-black/5">
+                <div className="flex flex-col md:flex-row gap-3 md:items-center">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-steel" />
+                        <input
+                            value={q}
+                            onChange={(e) => setQ(e.target.value)}
+                            placeholder="Search figures..."
+                            className="w-full bg-cream border border-black/8 rounded-lg pl-10 pr-4 py-2.5 text-sm text-ink placeholder:text-steel/60 focus:outline-none focus:border-accent/50 transition-colors"
+                        />
+                    </div>
+                    <button
+                        onClick={() => setShowFilters(!showFilters)}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-all duration-200 ${
+                            showFilters || activeFilterCount
+                                ? "bg-accent text-white border-accent"
+                                : "bg-cream border-black/8 text-steel hover:text-ink hover:border-black/15"
+                        }`}
+                    >
+                        <SlidersHorizontal className="h-4 w-4" />
+                        Filters
+                        {activeFilterCount > 0 && (
+                            <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
+                                {activeFilterCount}
+                            </span>
+                        )}
+                    </button>
                 </div>
 
-                <div className="flex items-center gap-2 text-sm">
-                    <Filter className="h-4 w-4"/> Filters
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                    {ALL_TRAITS.map((t) => (<Pill key={t} label={t} active={traitFilters.includes(t)} onClick={() => toggle(traitFilters, setTraitFilters, t)}/>))}
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                    {ALL_ROLES.map((r) => (<Pill key={r} label={r} active={roleFilters.includes(r)} onClick={() => toggle(roleFilters, setRoleFilters, r)}/>))}
-                </div>
+                {showFilters && (
+                    <div className="mt-4 space-y-3 animate-fade-in">
+                        <div>
+                            <p className="text-xs text-steel mb-2 font-medium tracking-wider uppercase">Traits</p>
+                            <div className="flex flex-wrap gap-1.5">
+                                {ALL_TRAITS.map((t) => (
+                                    <Pill key={t} label={t} active={traitFilters.includes(t)} onClick={() => toggle(traitFilters, setTraitFilters, t)} />
+                                ))}
+                            </div>
+                        </div>
+                        <div>
+                            <p className="text-xs text-steel mb-2 font-medium tracking-wider uppercase">Roles</p>
+                            <div className="flex flex-wrap gap-1.5">
+                                {ALL_ROLES.map((r) => (
+                                    <Pill key={r} label={r} active={roleFilters.includes(r)} onClick={() => toggle(roleFilters, setRoleFilters, r)} />
+                                ))}
+                            </div>
+                        </div>
+                        {activeFilterCount > 0 && (
+                            <button
+                                onClick={() => { setTraitFilters([]); setRoleFilters([]); }}
+                                className="flex items-center gap-1 text-xs text-steel hover:text-accent transition-colors"
+                            >
+                                <X className="h-3 w-3" /> Clear all filters
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
 
-            <div className="mt-6 overflow-x-auto">
+            {/* Table */}
+            <div className="overflow-x-auto">
                 <table className="min-w-full text-sm">
                     <thead>
-                    <tr className="text-left border-b">
-                        <th className="py-2 pr-4">Figure</th>
-                        <th className="py-2 pr-4">Culture</th>
-                        <th className="py-2 pr-4">Region</th>
-                        <th className="py-2 pr-4">Era</th>
-                        <th className="py-2 pr-4">Traits</th>
-                        <th className="py-2 pr-4">Roles</th>
-                    </tr>
+                        <tr className="border-b border-black/5 bg-cream/50">
+                            <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase">Figure</th>
+                            <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase">Culture</th>
+                            <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden md:table-cell">Region</th>
+                            <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden lg:table-cell">Era</th>
+                            <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase">Traits</th>
+                            <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase">Roles</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {filtered.map((f) => (<tr key={f.id} className="border-b last:border-0">
-                            <td className="py-3 pr-4 font-medium">{f.name}</td>
-                            <td className="py-3 pr-4">{f.culture}</td>
-                            <td className="py-3 pr-4">{f.region}</td>
-                            <td className="py-3 pr-4">{f.era}</td>
-                            <td className="py-3 pr-4">
-                                <div className="flex flex-wrap gap-1">
-                                    {f.traits.map((t) => <Badge key={t}>{getTraitLabel(t)}</Badge>)}
-                                </div>
-                            </td>
-                            <td className="py-3 pr-4">
-                                <div className="flex flex-wrap gap-1">
-                                    {f.roles.map((r) => <Badge key={r}>{getRoleLabel(r)}</Badge>)}
-                                </div>
-                            </td>
-                        </tr>))}
-                    {filtered.length === 0 && (<tr>
-                            <td colSpan={6} className="py-6 text-centre text-neutral-500">
-                                <div className="flex items-centre justify-centre gap-2">
-                                    <TableIcon className="h-4 w-4"/>
-                                    No results - try clearing filters.
-                                </div>
-                            </td>
-                        </tr>)}
+                        {filtered.map((f, i) => (
+                            <tr
+                                key={f.id}
+                                className={`border-b border-black/3 transition-colors hover:bg-cream/60 ${
+                                    i % 2 === 0 ? "bg-transparent" : "bg-cream/30"
+                                }`}
+                            >
+                                <td className="py-3.5 px-5 font-semibold text-black">{f.name}</td>
+                                <td className="py-3.5 px-5 text-steel text-xs">{f.culture}</td>
+                                <td className="py-3.5 px-5 text-steel text-xs hidden md:table-cell">{f.region}</td>
+                                <td className="py-3.5 px-5 text-steel text-xs hidden lg:table-cell">{f.era}</td>
+                                <td className="py-3.5 px-5">
+                                    <div className="flex flex-wrap gap-1">
+                                        {f.traits.map((t) => <Badge key={t} variant="trait">{getTraitLabel(t)}</Badge>)}
+                                    </div>
+                                </td>
+                                <td className="py-3.5 px-5">
+                                    <div className="flex flex-wrap gap-1">
+                                        {f.roles.map((r) => <Badge key={r} variant="role">{getRoleLabel(r)}</Badge>)}
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                        {filtered.length === 0 && (
+                            <tr>
+                                <td colSpan={6} className="py-12 text-center text-steel">
+                                    No figures match your filters. Try removing some.
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>
-        </div>);
+
+            {/* Result count */}
+            <div className="px-5 py-3 border-t border-black/5">
+                <p className="text-xs text-steel">
+                    {filtered.length} of {FIGURES.length} figures
+                </p>
+            </div>
+        </div>
+    );
 }
