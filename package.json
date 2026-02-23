@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "normalize": "bash scripts/normalize-unicode.sh src/",
+    "normalize:check": "bash scripts/normalize-unicode.sh --check src/"
   },
   "dependencies": {
     "lucide-react": "^0.542.0",

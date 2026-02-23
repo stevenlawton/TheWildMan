@@ -42,7 +42,7 @@ export default function WildOneSite() {
                     <div className="rounded-xl bg-white p-6 shadow-sm">
                         <h3 className="font-bold text-black text-lg mb-2">Personification of Nature</h3>
                         <p className="text-steel leading-relaxed">
-                            Figures who embody the untamed world — forest, mountain, bush, desert. Nature given human shape, standing at the boundary between civilisation and wilderness.
+                            Figures who embody the untamed world -- forest, mountain, bush, desert. Nature given human shape, standing at the boundary between civilisation and wilderness.
                         </p>
                     </div>
                     <div className="rounded-xl bg-white p-6 shadow-sm">

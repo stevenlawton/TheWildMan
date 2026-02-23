@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | { read fp; if echo \"$fp\" | grep -qE '\\.(jsx?|tsx?|css|json|md)$'; then bash \"$CLAUDE_PROJECT_DIR/scripts/normalize-unicode.sh\" \"$fp\" 2>/dev/null; fi; }"
+          }
+        ]
+      }
+    ]
+  }
+}
