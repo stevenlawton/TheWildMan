@@ -109,26 +109,26 @@ const REGION_META = {
 // Approximate equirectangular positions [x, y] on a 1000x500 viewBox
 // x = (lon + 180) / 360 * 1000, y = (90 - lat) / 180 * 500
 const REGION_COORDS = {
-    "Ancient Near East": [598, 160],
-    "Mediterranean": [525, 148],
-    "Western Europe": [478, 128],
-    "Northern Europe": [510, 58],
-    "Eastern Europe": [572, 88],
-    "Europe": [498, 105],
-    "Middle East": [618, 178],
-    "Central Asia": [698, 118],
-    "Siberia": [818, 62],
-    "East Asia": [850, 142],
-    "Himalayas": [728, 172],
-    "South Asia": [700, 205],
-    "Southeast Asia": [798, 225],
-    "North America": [195, 108],
-    "Mesoamerica": [248, 210],
-    "South America": [322, 312],
-    "Australia": [882, 322],
-    "Pacific / Polynesia": [950, 295],
-    "Africa": [530, 262],
-    "Arctic": [282, 48],
+    "Ancient Near East": [622, 158],   // Iraq/Mesopotamia 44°E 33°N
+    "Mediterranean": [550, 142],       // Greece/S. Italy 18°E 39°N
+    "Western Europe": [500, 122],      // France 0°E 46°N
+    "Northern Europe": [539, 78],      // Scandinavia 14°E 62°N
+    "Eastern Europe": [578, 106],      // Ukraine/Poland 28°E 52°N
+    "Europe": [522, 111],              // Central Europe 8°E 50°N
+    "Middle East": [633, 172],         // Iran/Gulf 48°E 28°N
+    "Central Asia": [681, 128],        // Kazakhstan 65°E 44°N
+    "Siberia": [764, 78],             // Central Siberia 95°E 62°N
+    "East Asia": [828, 150],           // China/Korea 118°E 36°N
+    "Himalayas": [736, 172],           // Nepal 85°E 28°N
+    "South Asia": [717, 194],          // India 78°E 20°N
+    "Southeast Asia": [792, 222],      // Thailand/Vietnam 105°E 10°N
+    "North America": [222, 117],       // US/Canada 100°W 48°N
+    "Mesoamerica": [250, 200],         // Central America 90°W 18°N
+    "South America": [347, 283],       // Brazil 55°W 12°S
+    "Australia": [872, 319],           // Central Australia 134°E 25°S
+    "Pacific / Polynesia": [978, 292], // Fiji/Tonga 172°E 15°S
+    "Africa": [550, 236],             // W/Central Africa 18°E 5°N
+    "Arctic": [264, 50],              // Northern Canada 85°W 72°N
 };
 
 export default function WorldMap({ onFigureClick }) {
