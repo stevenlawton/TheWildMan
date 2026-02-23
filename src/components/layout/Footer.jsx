@@ -6,7 +6,7 @@ export default function Footer() {
                     Each figure is drawn from attested folklore or material culture.
                 </p>
                 <p className="text-xs text-steel/60 mt-2">
-                    Built with React & Tailwind CSS
+                    <a href="https://stevenlawton.com" className="hover:text-accent transition-colors">stevenlawton.com</a>
                 </p>
             </div>
         </footer>
