@@ -177,8 +177,31 @@ export const TREE_EDGES = [
     {from: "PA1", to: "PA2", type: "parallel"},
     {from: "PA3", to: "PA4", type: "parallel"},
 
-    // Arctic cluster (independent)
+    // Arctic cluster
     {from: "AR1", to: "AR2", type: "parallel"},
+
+    // === Cross-region merge edges (17 roots -> 4 forests) ===
+
+    // Eurasian mega-tree (merge into A1 root)
+    {from: "C2", to: "C5", type: "substrate"},   // Woodwose -> Basajaun (shared European wild man substrate)
+    {from: "C4", to: "FI1", type: "substrate"},   // Huldra -> Tapio (Scandinavian-Finnish contact zone)
+    {from: "B1", to: "E3", type: "substrate"},    // Satyrs -> Yakshas (Hellenistic-Indian cultural contact)
+    {from: "E3", to: "SEA3", type: "substrate"},  // Yakshas -> Diwata (Hindu-Buddhist transmission)
+    {from: "E1", to: "E2", type: "substrate"},    // Leshy -> Yeren (Slavic-Chinese via Central Asian steppe)
+    {from: "E2", to: "SEA1", type: "substrate"},  // Yeren -> Nguoi Rung (Chinese-Vietnamese contact)
+    {from: "E2", to: "KR1", type: "parallel"},    // Yeren -> Dokkaebi (East Asian parallel)
+    {from: "KR1", to: "JP3", type: "substrate"},  // Dokkaebi -> Kodama (East Asian cultural flow)
+
+    // Americas tree (merge into F1 root)
+    {from: "F1", to: "AR1", type: "parallel"},    // Sasquatch -> Ijiraq (North American parallel)
+    {from: "F1", to: "MA1", type: "parallel"},    // Sasquatch -> Chaneque (Americas nature-being parallel)
+    {from: "F1", to: "F3", type: "parallel"},     // Sasquatch -> Mapinguari (Americas cryptid parallel)
+
+    // Africa merge
+    {from: "AF5", to: "AF2", type: "parallel"},   // Tokoloshe -> Aziza (African forest spirit parallel)
+
+    // Oceania merge
+    {from: "PA1", to: "PA3", type: "parallel"},   // Maero -> Menehune (shared Polynesian substrate)
 ];
 
 export const EDGE_TYPE_LABELS = {

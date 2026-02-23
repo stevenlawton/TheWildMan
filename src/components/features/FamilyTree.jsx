@@ -5,7 +5,7 @@ import { ZoomIn, ZoomOut, Maximize2, Move } from "lucide-react";
 
 const EXPLICIT_ORDER = { A1: ["B2", "B3", "B1"] };
 
-const MIN_ZOOM = 0.15;
+const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 1.5;
 const ZOOM_STEP = 0.15;
 
@@ -13,6 +13,13 @@ const EDGE_STYLES = {
     direct:    { stroke: "#CC5200", width: 1.5, dash: "",      opacity: 0.6, marker: "arrow" },
     substrate: { stroke: "#666666", width: 1.2, dash: "6 3",   opacity: 0.45, marker: "arrow-dim" },
     parallel:  { stroke: "#666666", width: 1,   dash: "2 4",   opacity: 0.35, marker: "arrow-dim" },
+};
+
+const FOREST_LABELS = {
+    A1: "Eurasia",
+    F1: "Americas",
+    AF5: "Africa",
+    G1: "Oceania & Pacific",
 };
 
 // Build a lookup from edge key -> type
@@ -60,13 +67,15 @@ export default function FamilyTree({ onFigureClick }) {
     }, []);
 
     // Layout computation
-    const { pos, primaryEdges, secondaryEdges, width, height, nodeW, nodeH } = useMemo(() => {
-        const nodeW = 240;
-        const nodeH = 86;
-        const hGap = 24;
-        const vGap = 48;
-        const rootGap = 80;
-        const pad = { l: 40, t: 40, r: 40, b: 40 };
+    const { pos, primaryEdges, secondaryEdges, width, height, nodeW, nodeH, forestLabels } = useMemo(() => {
+        const nodeW = 180;
+        const nodeH = 60;
+        const hGap = 14;
+        const vGap = 36;
+        const forestGap = 50;
+        const labelH = 22;
+        const targetWidth = 1400;
+        const pad = { l: 30, t: 30, r: 30, b: 30 };
 
         const byId = new Map(TREE_NODES.map(n => [n.id, { ...n }]));
         const childrenAll = new Map([...byId.keys()].map(id => [id, []]));
@@ -111,18 +120,27 @@ export default function FamilyTree({ onFigureClick }) {
         }
         const forests = roots.map(r => build(r));
 
-        const unit = nodeW + hGap;
-        const pos = {};
-        const primaryEdges = [];
+        function countNodes(tree) {
+            return 1 + tree.children.reduce((sum, c) => sum + countNodes(c), 0);
+        }
 
-        function layoutTree(tree, offsetX) {
-            let cursor = offsetX;
+        // Sort largest forest first
+        const sortedForests = [...forests].sort((a, b) => countNodes(b) - countNodes(a));
+
+        const unit = nodeW + hGap;
+
+        // Layout a single forest at origin (0,0)
+        function layoutForest(tree) {
+            const localPos = {};
+            const localEdges = [];
+            let cursor = 0;
+
             function layout(node, depth) {
                 if (!node.children.length) {
                     const cx = cursor + unit / 2;
                     node.x = cx - nodeW / 2;
                     node.y = depth * (nodeH + vGap);
-                    pos[node.id] = { x: node.x, y: node.y };
+                    localPos[node.id] = { x: node.x, y: node.y };
                     cursor += unit;
                     return { minX: node.x, maxX: node.x + nodeW };
                 }
@@ -132,56 +150,92 @@ export default function FamilyTree({ onFigureClick }) {
                 const cx = (minX + maxX) / 2;
                 node.x = cx - nodeW / 2;
                 node.y = depth * (nodeH + vGap);
-                pos[node.id] = { x: node.x, y: node.y };
-                for (const c of node.children) primaryEdges.push([node.id, c.id]);
+                localPos[node.id] = { x: node.x, y: node.y };
+                for (const c of node.children) localEdges.push([node.id, c.id]);
                 return { minX, maxX };
             }
-            const box = layout(tree, 0);
-            return Math.max(offsetX + (box.maxX - offsetX), cursor);
+
+            layout(tree, 0);
+
+            // Normalize so top-left is at (0,0)
+            const xs = Object.values(localPos).map(p => p.x);
+            const ys = Object.values(localPos).map(p => p.y);
+            const oX = Math.min(...xs);
+            const oY = Math.min(...ys);
+            for (const id of Object.keys(localPos)) {
+                localPos[id] = { x: localPos[id].x - oX, y: localPos[id].y - oY };
+            }
+            const w = Math.max(...xs) + nodeW - oX;
+            const h = Math.max(...ys) + nodeH - oY;
+
+            return { pos: localPos, edges: localEdges, w, h, root: tree.id };
         }
 
-        let runX = pad.l;
-        for (const tree of forests) {
-            runX = layoutTree(tree, runX) + rootGap;
+        const laid = sortedForests.map(f => layoutForest(f));
+
+        // Arrange forests in a wrapping grid
+        const allPos = {};
+        const allPrimaryEdges = [];
+        const fLabels = [];
+        let rowX = pad.l;
+        let rowY = pad.t + labelH;
+        let rowHeight = 0;
+
+        for (const f of laid) {
+            if (rowX > pad.l && rowX + f.w > targetWidth) {
+                rowY += rowHeight + forestGap + labelH;
+                rowX = pad.l;
+                rowHeight = 0;
+            }
+
+            fLabels.push({
+                text: FOREST_LABELS[f.root] || f.root,
+                x: rowX,
+                y: rowY - 6,
+            });
+
+            for (const [id, p] of Object.entries(f.pos)) {
+                allPos[id] = { x: p.x + rowX, y: p.y + rowY };
+            }
+            allPrimaryEdges.push(...f.edges);
+
+            rowX += f.w + forestGap;
+            rowHeight = Math.max(rowHeight, f.h);
         }
 
-        const primarySet = new Set(primaryEdges.map(([a, b]) => `${a}->${b}`));
+        // Secondary edges (cross-links not in the spanning tree)
+        const primarySet = new Set(allPrimaryEdges.map(([a, b]) => `${a}->${b}`));
         const secondaryEdges = TREE_EDGES
             .filter(e => include.has(e.from) && include.has(e.to))
             .filter(e => !primarySet.has(`${e.from}->${e.to}`))
             .map(e => [e.from, e.to]);
 
-        const xs = Object.values(pos).map(p => p.x);
-        const xe = Object.values(pos).map(p => p.x + nodeW);
-        const ys = Object.values(pos).map(p => p.y);
-        const ye = Object.values(pos).map(p => p.y + nodeH);
-        const minX = Math.min(...xs, pad.l);
-        const maxX = Math.max(...xe, pad.l + 1);
-        const minY = Math.min(...ys, pad.t);
-        const maxY = Math.max(...ye, pad.t + 1);
-        const shiftX = minX < pad.l ? pad.l - minX : 0;
-        const shiftY = minY < pad.t ? pad.t - minY : 0;
-        for (const id of Object.keys(pos)) {
-            pos[id] = { x: pos[id].x + shiftX, y: pos[id].y + shiftY };
-        }
+        // Canvas size
+        const allXe = Object.values(allPos).map(p => p.x + nodeW);
+        const allYe = Object.values(allPos).map(p => p.y + nodeH);
+        const totalWidth = Math.max(...allXe) + pad.r;
+        const totalHeight = Math.max(...allYe) + pad.b;
 
         return {
-            pos, primaryEdges, secondaryEdges, nodeW, nodeH,
-            width: Math.ceil(maxX - Math.min(minX, pad.l)) + pad.r + shiftX,
-            height: Math.ceil(maxY - Math.min(minY, pad.t)) + pad.b + shiftY,
+            pos: allPos, primaryEdges: allPrimaryEdges, secondaryEdges,
+            width: totalWidth, height: totalHeight,
+            nodeW, nodeH, forestLabels: fLabels,
         };
     }, []);
 
-    // Fit to container
+    // Fit to container (clamp min zoom to 0.45 so text stays readable)
     const fitToView = useCallback(() => {
         if (!containerSize.w || !containerSize.h) return;
         const scaleX = containerSize.w / width;
         const scaleY = containerSize.h / height;
-        const fitZoom = Math.min(scaleX, scaleY, 1);
+        const natural = Math.min(scaleX, scaleY, 1);
+        const fitZoom = Math.max(natural, 0.45);
         setZoom(fitZoom);
+        const cw = width * fitZoom;
+        const ch = height * fitZoom;
         setPan({
-            x: (containerSize.w - width * fitZoom) / 2,
-            y: (containerSize.h - height * fitZoom) / 2,
+            x: cw <= containerSize.w ? (containerSize.w - cw) / 2 : 0,
+            y: ch <= containerSize.h ? (containerSize.h - ch) / 2 : 0,
         });
     }, [containerSize.w, containerSize.h, width, height]);
 
@@ -259,7 +313,7 @@ export default function FamilyTree({ onFigureClick }) {
         return EDGE_STYLES[type];
     }
 
-    function renderEdge(from, to, i, prefix) {
+    function renderPrimaryEdge(from, to, i) {
         const a = pos[from], b = pos[to];
         if (!a || !b) return null;
         const style = getEdgeStyle(from, to);
@@ -268,13 +322,39 @@ export default function FamilyTree({ onFigureClick }) {
         const my = (y1 + y2) / 2;
         return (
             <path
-                key={`${prefix}-${i}`}
+                key={`p-${i}`}
                 d={`M ${x1} ${y1} C ${x1} ${my}, ${x2} ${my}, ${x2} ${y2}`}
                 fill="none"
                 stroke={style.stroke}
                 strokeWidth={style.width}
                 strokeDasharray={style.dash}
                 strokeOpacity={style.opacity}
+                markerEnd={`url(#${style.marker})`}
+            />
+        );
+    }
+
+    function renderSecondaryEdge(from, to, i) {
+        const a = pos[from], b = pos[to];
+        if (!a || !b) return null;
+        const style = getEdgeStyle(from, to);
+        const x1 = a.x + nodeW / 2, y1 = a.y + nodeH / 2;
+        const x2 = b.x + nodeW / 2, y2 = b.y + nodeH / 2;
+        const dx = x2 - x1, dy = y2 - y1;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        const arc = Math.min(dist * 0.15, 30);
+        const nx = -dy / dist, ny = dx / dist;
+        const mx = (x1 + x2) / 2 + nx * arc;
+        const my = (y1 + y2) / 2 + ny * arc;
+        return (
+            <path
+                key={`s-${i}`}
+                d={`M ${x1} ${y1} Q ${mx} ${my}, ${x2} ${y2}`}
+                fill="none"
+                stroke={style.stroke}
+                strokeWidth={style.width}
+                strokeDasharray={style.dash}
+                strokeOpacity={style.opacity * 0.7}
                 markerEnd={`url(#${style.marker})`}
             />
         );
@@ -297,7 +377,7 @@ export default function FamilyTree({ onFigureClick }) {
                 </button>
                 <span className="text-xs text-steel tabular-nums ml-1 min-w-[3ch] text-right">{pct}%</span>
 
-                {/* Legend - condensed on mobile, full on sm+ */}
+                {/* Legend */}
                 <div className="ml-4 flex items-center gap-3 text-[10px] text-steel">
                     <span className="flex items-center gap-1">
                         <svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#CC5200" strokeWidth="1.5" strokeOpacity="0.6" /></svg>
@@ -348,8 +428,24 @@ export default function FamilyTree({ onFigureClick }) {
                             </marker>
                         </defs>
 
-                        {primaryEdges.map(([from, to], i) => renderEdge(from, to, i, "p"))}
-                        {secondaryEdges.map(([from, to], i) => renderEdge(from, to, i, "s"))}
+                        {/* Forest region labels */}
+                        {forestLabels.map((lbl, i) => (
+                            <text
+                                key={`fl-${i}`}
+                                x={lbl.x}
+                                y={lbl.y}
+                                fill="#888"
+                                fillOpacity="0.7"
+                                fontSize="11"
+                                fontWeight="600"
+                                letterSpacing="0.05em"
+                            >
+                                {lbl.text.toUpperCase()}
+                            </text>
+                        ))}
+
+                        {primaryEdges.map(([from, to], i) => renderPrimaryEdge(from, to, i))}
+                        {secondaryEdges.map(([from, to], i) => renderSecondaryEdge(from, to, i))}
                     </svg>
 
                     {Object.entries(pos).map(([id, p]) => {
@@ -359,7 +455,7 @@ export default function FamilyTree({ onFigureClick }) {
                         return (
                             <div
                                 key={id}
-                                className={`absolute rounded-lg border border-black/8 bg-white p-2.5 text-xs leading-snug shadow-sm hover:shadow-md hover:border-accent/30 transition-all duration-200 ${fig ? "cursor-pointer" : ""}`}
+                                className={`absolute rounded-lg border border-black/8 bg-white p-2 text-xs leading-snug shadow-sm hover:shadow-md hover:border-accent/30 transition-all duration-200 ${fig ? "cursor-pointer" : ""}`}
                                 style={{ left: p.x, top: p.y, width: nodeW, height: nodeH }}
                                 title={lines.join("\n")}
                                 onClick={fig ? (e) => { e.stopPropagation(); onFigureClick?.(fig); } : undefined}
@@ -367,9 +463,9 @@ export default function FamilyTree({ onFigureClick }) {
                                 tabIndex={fig ? 0 : undefined}
                                 role={fig ? "button" : undefined}
                             >
-                                <div className="font-semibold text-black text-sm">{lines[0]}</div>
+                                <div className="font-semibold text-black text-[13px] leading-tight truncate">{lines[0]}</div>
                                 {lines.slice(1).map((ln, i) => (
-                                    <div key={i} className="text-[11px] text-steel mt-0.5">{ln}</div>
+                                    <div key={i} className="text-[10px] text-steel mt-0.5 truncate">{ln}</div>
                                 ))}
                             </div>
                         );
