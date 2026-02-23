@@ -21,7 +21,7 @@ export default function FiguresGrid({ onFigureClick }) {
                     <div className={`pl-3 ${f.image ? "flex gap-4" : ""}`}>
                         {f.image && (
                             <img
-                                src={f.image.src}
+                                src={import.meta.env.BASE_URL + f.image.src.replace(/^\//, "")}
                                 alt={f.image.alt}
                                 className="w-20 h-20 rounded-lg object-cover shrink-0"
                                 loading="lazy"

@@ -102,7 +102,7 @@ export default function FigureDetail({ figure, onClose }) {
                     {f.image && (
                         <div>
                             <img
-                                src={f.image.src}
+                                src={import.meta.env.BASE_URL + f.image.src.replace(/^\//, "")}
                                 alt={f.image.alt}
                                 className="w-full max-h-[250px] object-contain rounded-lg bg-black/5"
                             />
