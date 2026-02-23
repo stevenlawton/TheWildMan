@@ -25,7 +25,13 @@ export default function FamilyTree() {
     const [zoom, setZoom] = useState(1);
     const [pan, setPan] = useState({ x: 0, y: 0 });
     const [dragging, setDragging] = useState(false);
+    const [isTouch, setIsTouch] = useState(false);
     const dragStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
+
+    // Detect touch device
+    useEffect(() => {
+        setIsTouch("ontouchstart" in window);
+    }, []);
 
     // Measure container
     useEffect(() => {
@@ -294,7 +300,7 @@ export default function FamilyTree() {
 
                 <div className="ml-auto flex items-center gap-1.5 text-xs text-steel/60">
                     <Move className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">{("ontouchstart" in window) ? "Drag to pan, pinch to zoom" : "Drag to pan, scroll to zoom"}</span>
+                    <span className="hidden sm:inline">{isTouch ? "Drag to pan, pinch to zoom" : "Drag to pan, scroll to zoom"}</span>
                 </div>
             </div>
 

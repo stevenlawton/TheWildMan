@@ -41,8 +41,11 @@ jobs:
             echo "base=/$REPO_NAME/" >> $GITHUB_OUTPUT
           fi
 
-      - name: Build
-        run: npm run build -- --base=${{ steps.base.outputs.base }}
+      - name: Build client
+        run: npm run build:client -- --base=${{ steps.base.outputs.base }}
+
+      - name: Build server & pre-render
+        run: npm run build:server && npm run build:prerender
 
       - name: SPA fallback (copy index.html to 404.html)
         run: cp dist/index.html dist/404.html
