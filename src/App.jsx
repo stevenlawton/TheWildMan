@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { BookOpenCheck, Globe, Table as TableIcon, Trees, GitBranch } from "lucide-react";
 
 import { FIGURES } from "./data/figures";
 import { norm, ROLE_LABELS, TRAIT_LABELS, FIGURE_TYPE_LABELS } from "./data/labels";
 
+import useHashTab from "./hooks/useHashTab";
+
 import Section from "./components/ui/Section";
-import FiguresGrid from "./components/features/FiguresGrid";
-import ComparativeTable from "./components/features/ComparativeTable";
+import FiguresTab from "./components/features/FiguresTab";
 import Timeline from "./components/features/Timeline";
 import FamilyTree from "./components/features/FamilyTree";
 import Sources from "./components/features/Sources";
@@ -36,68 +36,84 @@ function useSelfTests() {
 
 export default function WildOneSite() {
     useSelfTests();
+    const [activeTab, setActiveTab] = useHashTab();
     const [selectedFigure, setSelectedFigure] = useState(null);
 
     const handleFigureClick = useCallback((figure) => {
         setSelectedFigure(figure);
     }, []);
 
-    const handleRegionClick = useCallback((region) => {
-        const el = document.getElementById("table");
-        if (el) el.scrollIntoView({ behavior: "smooth" });
-    }, []);
-
     return (
         <div className="min-h-screen bg-cream text-ink">
-            <Header />
-            <Hero />
+            <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
-            <Section id="what" title="What is the 'Wild One' archetype?">
-                <div className="grid md:grid-cols-3 gap-5">
-                    <div className="rounded-xl bg-white p-6 shadow-sm">
-                        <h3 className="font-bold text-black text-lg mb-2">Personification of Nature</h3>
-                        <p className="text-steel leading-relaxed">
-                            Figures who embody the untamed world -- forest, mountain, bush, desert. Nature given human shape, standing at the boundary between civilisation and wilderness.
-                        </p>
-                    </div>
-                    <div className="rounded-xl bg-white p-6 shadow-sm">
-                        <h3 className="font-bold text-black text-lg mb-2">Shared Traits</h3>
-                        <p className="text-steel leading-relaxed">
-                            Hair or leaves covering the body, liminal habitats, guardian or punisher roles, and sometimes fertility or taboo themes. Remarkably consistent across cultures.
-                        </p>
-                    </div>
-                    <div className="rounded-xl bg-white p-6 shadow-sm">
-                        <h3 className="font-bold text-black text-lg mb-2">Independent Emergence</h3>
-                        <p className="text-steel leading-relaxed">
-                            Similar stories appear in cultures with little or no contact, suggesting shared human responses to wilderness rather than a single origin myth.
-                        </p>
-                    </div>
+            {activeTab === "home" && (
+                <div id="tabpanel-home" role="tabpanel" tabIndex={-1}>
+                    <Hero setActiveTab={setActiveTab} />
+
+                    <Section id="what" title="What is the 'Wild One' archetype?">
+                        <div className="grid md:grid-cols-3 gap-5">
+                            <div className="rounded-xl bg-white p-6 shadow-sm">
+                                <h3 className="font-bold text-black text-lg mb-2">Personification of Nature</h3>
+                                <p className="text-steel leading-relaxed">
+                                    Figures who embody the untamed world -- forest, mountain, bush, desert. Nature given human shape, standing at the boundary between civilisation and wilderness.
+                                </p>
+                            </div>
+                            <div className="rounded-xl bg-white p-6 shadow-sm">
+                                <h3 className="font-bold text-black text-lg mb-2">Shared Traits</h3>
+                                <p className="text-steel leading-relaxed">
+                                    Hair or leaves covering the body, liminal habitats, guardian or punisher roles, and sometimes fertility or taboo themes. Remarkably consistent across cultures.
+                                </p>
+                            </div>
+                            <div className="rounded-xl bg-white p-6 shadow-sm">
+                                <h3 className="font-bold text-black text-lg mb-2">Independent Emergence</h3>
+                                <p className="text-steel leading-relaxed">
+                                    Similar stories appear in cultures with little or no contact, suggesting shared human responses to wilderness rather than a single origin myth.
+                                </p>
+                            </div>
+                        </div>
+                    </Section>
+
                 </div>
-            </Section>
+            )}
 
-            <Section id="regions" title="World regions">
-                <WorldMap onRegionClick={handleRegionClick} />
-            </Section>
+            {activeTab === "map" && (
+                <div id="tabpanel-map" role="tabpanel" tabIndex={-1}>
+                    <Section id="map" title="World regions">
+                        <WorldMap onFigureClick={handleFigureClick} />
+                    </Section>
+                </div>
+            )}
 
-            <Section id="figures" title="Global figures at a glance">
-                <FiguresGrid onFigureClick={handleFigureClick} />
-            </Section>
+            {activeTab === "figures" && (
+                <div id="tabpanel-figures" role="tabpanel" tabIndex={-1}>
+                    <FiguresTab onFigureClick={handleFigureClick} />
+                </div>
+            )}
 
-            <Section id="table" title="Comparative table">
-                <ComparativeTable onFigureClick={handleFigureClick} />
-            </Section>
+            {activeTab === "timeline" && (
+                <div id="tabpanel-timeline" role="tabpanel" tabIndex={-1}>
+                    <Section id="timeline" title="Attested timeline">
+                        <Timeline />
+                    </Section>
+                </div>
+            )}
 
-            <Section id="timeline" title="Attested timeline">
-                <Timeline />
-            </Section>
+            {activeTab === "lineage" && (
+                <div id="tabpanel-lineage" role="tabpanel" tabIndex={-1}>
+                    <Section id="lineage" title="Conceptual lineage">
+                        <FamilyTree />
+                    </Section>
+                </div>
+            )}
 
-            <Section id="tree" title="Conceptual lineage">
-                <FamilyTree />
-            </Section>
-
-            <Section id="sources" title="References & further reading">
-                <Sources />
-            </Section>
+            {activeTab === "sources" && (
+                <div id="tabpanel-sources" role="tabpanel" tabIndex={-1}>
+                    <Section id="sources" title="References & further reading">
+                        <Sources />
+                    </Section>
+                </div>
+            )}
 
             <Footer />
 

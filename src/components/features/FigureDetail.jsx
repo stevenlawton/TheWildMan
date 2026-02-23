@@ -15,18 +15,55 @@ function formatYear(y) {
 
 export default function FigureDetail({ figure, onClose }) {
     const overlayRef = useRef(null);
+    const dialogRef = useRef(null);
+    const closeRef = useRef(null);
+    const previousFocusRef = useRef(null);
 
+    // Capture the element that had focus before the modal opened
     useEffect(() => {
-        const handleKey = (e) => { if (e.key === "Escape") onClose(); };
+        previousFocusRef.current = document.activeElement;
+    }, []);
+
+    // Escape key, focus trap, and auto-focus close button
+    useEffect(() => {
+        if (!figure) return;
+        const dialog = dialogRef.current;
+        if (!dialog) return;
+
+        // Auto-focus close button
+        closeRef.current?.focus();
+
+        const handleKey = (e) => {
+            if (e.key === "Escape") { onClose(); return; }
+            if (e.key !== "Tab") return;
+
+            const focusable = dialog.querySelectorAll(
+                'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            );
+            if (focusable.length === 0) return;
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+
+            if (e.shiftKey) {
+                if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+            } else {
+                if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+            }
+        };
+
         document.addEventListener("keydown", handleKey);
         return () => document.removeEventListener("keydown", handleKey);
-    }, [onClose]);
+    }, [figure, onClose]);
 
-    // Lock body scroll while modal is open
+    // Lock body scroll while modal is open, restore focus on close
     useEffect(() => {
         const prev = document.body.style.overflow;
         document.body.style.overflow = "hidden";
-        return () => { document.body.style.overflow = prev; };
+        return () => {
+            document.body.style.overflow = prev;
+            previousFocusRef.current?.focus();
+        };
     }, []);
 
     if (!figure) return null;
@@ -37,8 +74,11 @@ export default function FigureDetail({ figure, onClose }) {
             ref={overlayRef}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 animate-fade-in"
             onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
+            role="dialog"
+            aria-modal="true"
+            aria-label={f.name}
         >
-            <div className="relative bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[85vh] overflow-y-auto">
+            <div ref={dialogRef} className="relative bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[85vh] overflow-y-auto">
                 {/* Header */}
                 <div className="sticky top-0 bg-white border-b border-black/5 px-6 py-4 flex items-start justify-between gap-4 rounded-t-2xl">
                     <div>
@@ -48,8 +88,10 @@ export default function FigureDetail({ figure, onClose }) {
                         </p>
                     </div>
                     <button
+                        ref={closeRef}
                         onClick={onClose}
                         className="p-1.5 rounded-md hover:bg-black/5 text-steel hover:text-black transition-colors"
+                        aria-label="Close"
                     >
                         <X className="h-5 w-5" />
                     </button>

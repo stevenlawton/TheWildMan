@@ -48,7 +48,9 @@ export default function ComparativeTable({ onFigureClick }) {
                 <div className="flex flex-col md:flex-row gap-3 md:items-center">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-steel" />
+                        <label htmlFor="figure-search" className="sr-only">Search figures</label>
                         <input
+                            id="figure-search"
                             value={q}
                             onChange={(e) => setQ(e.target.value)}
                             placeholder="Search figures..."
@@ -116,23 +118,27 @@ export default function ComparativeTable({ onFigureClick }) {
                 <table className="min-w-full text-sm">
                     <thead>
                         <tr className="border-b border-black/5 bg-cream/50">
-                            <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase">Figure</th>
-                            <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden sm:table-cell">Type</th>
-                            <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase">Culture</th>
-                            <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden md:table-cell">Region</th>
-                            <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden lg:table-cell">Era</th>
-                            <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden sm:table-cell">Traits</th>
-                            <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden sm:table-cell">Roles</th>
+                            <th scope="col" className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase">Figure</th>
+                            <th scope="col" className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden sm:table-cell">Type</th>
+                            <th scope="col" className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase">Culture</th>
+                            <th scope="col" className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden md:table-cell">Region</th>
+                            <th scope="col" className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden lg:table-cell">Era</th>
+                            <th scope="col" className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden sm:table-cell">Traits</th>
+                            <th scope="col" className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden sm:table-cell">Roles</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filtered.map((f, i) => (
                             <tr
                                 key={f.id}
-                                className={`border-b border-black/3 transition-colors hover:bg-cream/60 cursor-pointer ${
+                                className={`border-b border-black/3 transition-colors hover:bg-cream/60 cursor-pointer focus:outline-none focus:bg-cream/60 ${
                                     i % 2 === 0 ? "bg-transparent" : "bg-cream/30"
                                 }`}
                                 onClick={() => onFigureClick?.(f)}
+                                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onFigureClick?.(f); } }}
+                                tabIndex={0}
+                                role="button"
+                                aria-label={f.name}
                             >
                                 <td className="py-3.5 px-5">
                                     <span className="font-semibold text-black">{f.name}</span>

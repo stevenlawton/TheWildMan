@@ -8,8 +8,12 @@ export default function FiguresGrid({ onFigureClick }) {
             {FIGURES.map((f) => (
                 <article
                     key={f.id}
-                    className="group relative rounded-xl bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md cursor-pointer"
+                    className="group relative rounded-xl bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent/50 focus:shadow-md"
                     onClick={() => onFigureClick?.(f)}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onFigureClick?.(f); } }}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={f.name}
                 >
                     {/* Orange accent bar */}
                     <div className="absolute left-0 top-4 bottom-4 w-[3px] rounded-full bg-accent/30 group-hover:bg-accent transition-colors duration-300" />

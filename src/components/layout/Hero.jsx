@@ -1,6 +1,6 @@
 import { ChevronDown } from "lucide-react";
 
-export default function Hero() {
+export default function Hero({ setActiveTab }) {
     return (
         <section className="relative overflow-hidden">
             <div className="mx-auto max-w-6xl px-4 py-24 md:py-36">
@@ -19,17 +19,27 @@ export default function Hero() {
                 </p>
 
                 <div className="animate-fade-up flex flex-wrap gap-3 mt-10" style={{ animationDelay: "0.5s" }}>
-                    <a href="#figures" className="inline-flex items-center gap-2 bg-black text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-accent transition-colors duration-200">
+                    <button
+                        onClick={() => setActiveTab("figures")}
+                        className="inline-flex items-center gap-2 bg-black text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-accent transition-colors duration-200"
+                    >
                         Explore figures
-                    </a>
-                    <a href="#table" className="inline-flex items-center gap-2 border border-black/15 px-5 py-2.5 rounded-lg text-sm font-medium text-ink hover:border-accent hover:text-accent transition-colors duration-200">
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("figures")}
+                        className="inline-flex items-center gap-2 border border-black/15 px-5 py-2.5 rounded-lg text-sm font-medium text-ink hover:border-accent hover:text-accent transition-colors duration-200"
+                    >
                         Compare traits
-                    </a>
+                    </button>
                 </div>
             </div>
 
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 animate-fade-in" style={{ animationDelay: "1s" }}>
-                <a href="#what" className="flex flex-col items-center gap-1 text-steel/50 hover:text-accent transition-colors duration-200">
+                <a
+                    href="#what"
+                    onClick={(e) => { e.preventDefault(); document.getElementById("what")?.scrollIntoView({ behavior: "smooth" }); }}
+                    className="flex flex-col items-center gap-1 text-steel/50 hover:text-accent transition-colors duration-200"
+                >
                     <ChevronDown className="h-5 w-5 animate-bounce" />
                 </a>
             </div>
