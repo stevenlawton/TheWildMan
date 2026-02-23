@@ -3,7 +3,7 @@ import { ChevronDown } from "lucide-react";
 export default function Hero({ setActiveTab }) {
     return (
         <section className="relative overflow-hidden">
-            <div className="mx-auto max-w-6xl px-4 py-24 md:py-36">
+            <div className="mx-auto max-w-6xl px-4 py-14 md:py-20">
                 <p className="animate-fade-up text-sm font-semibold tracking-widest uppercase text-accent mb-4" style={{ animationDelay: "0.1s" }}>
                     A Cross-Cultural Survey
                 </p>
@@ -12,13 +12,13 @@ export default function Hero({ setActiveTab }) {
                     The Wild Man
                 </h1>
 
-                <div className="animate-fade-up h-1 w-16 bg-accent mt-6 mb-8" style={{ animationDelay: "0.3s" }} />
+                <div className="animate-fade-up h-1 w-16 bg-accent mt-4 mb-5" style={{ animationDelay: "0.3s" }} />
 
                 <p className="animate-fade-up text-xl md:text-2xl text-steel max-w-2xl leading-relaxed" style={{ animationDelay: "0.4s" }}>
                     Nature personifications and wild-beings across world folklore - from Enkidu and the Green Man to Leshy, Wendigo, Yowie, and beyond.
                 </p>
 
-                <div className="animate-fade-up flex flex-wrap gap-3 mt-10" style={{ animationDelay: "0.5s" }}>
+                <div className="animate-fade-up flex flex-wrap gap-3 mt-7" style={{ animationDelay: "0.5s" }}>
                     <button
                         onClick={() => setActiveTab("figures")}
                         className="inline-flex items-center gap-2 bg-black text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-accent transition-colors duration-200"
