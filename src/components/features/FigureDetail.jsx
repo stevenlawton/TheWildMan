@@ -3,9 +3,13 @@ import { X } from "lucide-react";
 import Badge from "../ui/Badge";
 import { getTraitLabel, getRoleLabel, getFigureTypeLabel, FIGURE_TYPE_COLOURS } from "../../data/labels";
 
+function formatNumber(n) {
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 function formatYear(y) {
     if (y == null) return null;
-    if (y < 0) return `${Math.abs(y).toLocaleString()} BCE`;
+    if (y < 0) return `${formatNumber(Math.abs(y))} BCE`;
     return `${y} CE`;
 }
 
@@ -17,6 +21,13 @@ export default function FigureDetail({ figure, onClose }) {
         document.addEventListener("keydown", handleKey);
         return () => document.removeEventListener("keydown", handleKey);
     }, [onClose]);
+
+    // Lock body scroll while modal is open
+    useEffect(() => {
+        const prev = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        return () => { document.body.style.overflow = prev; };
+    }, []);
 
     if (!figure) return null;
     const f = figure;

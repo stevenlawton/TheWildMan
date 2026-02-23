@@ -153,17 +153,16 @@ export default function FamilyTree() {
 
     // Fit to container
     const fitToView = useCallback(() => {
-        if (!containerSize.w) return;
-        const viewH = 500;
+        if (!containerSize.w || !containerSize.h) return;
         const scaleX = containerSize.w / width;
-        const scaleY = viewH / height;
+        const scaleY = containerSize.h / height;
         const fitZoom = Math.min(scaleX, scaleY, 1);
         setZoom(fitZoom);
         setPan({
             x: (containerSize.w - width * fitZoom) / 2,
-            y: (viewH - height * fitZoom) / 2,
+            y: (containerSize.h - height * fitZoom) / 2,
         });
-    }, [containerSize.w, width, height]);
+    }, [containerSize.w, containerSize.h, width, height]);
 
     // Auto-fit on first render
     const didFit = useRef(false);
@@ -188,12 +187,14 @@ export default function FamilyTree() {
 
     const handleZoomIn = () => {
         const cx = containerSize.w / 2;
-        zoomAtPoint(zoom + ZOOM_STEP, cx, 250);
+        const cy = containerSize.h / 2;
+        zoomAtPoint(zoom + ZOOM_STEP, cx, cy);
     };
 
     const handleZoomOut = () => {
         const cx = containerSize.w / 2;
-        zoomAtPoint(zoom - ZOOM_STEP, cx, 250);
+        const cy = containerSize.h / 2;
+        zoomAtPoint(zoom - ZOOM_STEP, cx, cy);
     };
 
     // Wheel zoom
@@ -275,33 +276,33 @@ export default function FamilyTree() {
                 </button>
                 <span className="text-xs text-steel tabular-nums ml-1 min-w-[3ch] text-right">{pct}%</span>
 
-                {/* Legend */}
-                <div className="ml-4 hidden sm:flex items-center gap-3 text-[10px] text-steel">
+                {/* Legend -- condensed on mobile, full on sm+ */}
+                <div className="ml-4 flex items-center gap-3 text-[10px] text-steel">
                     <span className="flex items-center gap-1">
                         <svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#CC5200" strokeWidth="1.5" strokeOpacity="0.6" /></svg>
-                        {EDGE_TYPE_LABELS.direct}
+                        <span className="hidden sm:inline">{EDGE_TYPE_LABELS.direct}</span>
                     </span>
                     <span className="flex items-center gap-1">
                         <svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#666" strokeWidth="1.2" strokeDasharray="6 3" strokeOpacity="0.45" /></svg>
-                        {EDGE_TYPE_LABELS.substrate}
+                        <span className="hidden sm:inline">{EDGE_TYPE_LABELS.substrate}</span>
                     </span>
                     <span className="flex items-center gap-1">
                         <svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#666" strokeWidth="1" strokeDasharray="2 4" strokeOpacity="0.35" /></svg>
-                        {EDGE_TYPE_LABELS.parallel}
+                        <span className="hidden sm:inline">{EDGE_TYPE_LABELS.parallel}</span>
                     </span>
                 </div>
 
                 <div className="ml-auto flex items-center gap-1.5 text-xs text-steel/60">
                     <Move className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Drag to pan, scroll to zoom</span>
+                    <span className="hidden sm:inline">{("ontouchstart" in window) ? "Drag to pan, pinch to zoom" : "Drag to pan, scroll to zoom"}</span>
                 </div>
             </div>
 
             {/* Canvas */}
             <div
                 ref={containerRef}
-                className="relative overflow-hidden"
-                style={{ height: 500, cursor: dragging ? "grabbing" : "grab" }}
+                className="relative overflow-hidden h-[60vh] min-h-[300px] max-h-[700px]"
+                style={{ touchAction: "none", cursor: dragging ? "grabbing" : "grab" }}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}

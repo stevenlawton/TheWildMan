@@ -8,7 +8,7 @@ export default function Hero() {
                     A Cross-Cultural Survey
                 </p>
 
-                <h1 className="animate-fade-up text-5xl md:text-7xl lg:text-8xl font-bold text-black leading-[1.05]" style={{ animationDelay: "0.2s" }}>
+                <h1 className="animate-fade-up text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-black leading-[1.05]" style={{ animationDelay: "0.2s" }}>
                     The Wild Man
                 </h1>
 

@@ -121,8 +121,8 @@ export default function ComparativeTable({ onFigureClick }) {
                             <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase">Culture</th>
                             <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden md:table-cell">Region</th>
                             <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden lg:table-cell">Era</th>
-                            <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase">Traits</th>
-                            <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase">Roles</th>
+                            <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden sm:table-cell">Traits</th>
+                            <th className="py-3 px-5 text-left font-medium text-steel text-xs tracking-wider uppercase hidden sm:table-cell">Roles</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -134,7 +134,16 @@ export default function ComparativeTable({ onFigureClick }) {
                                 }`}
                                 onClick={() => onFigureClick?.(f)}
                             >
-                                <td className="py-3.5 px-5 font-semibold text-black">{f.name}</td>
+                                <td className="py-3.5 px-5">
+                                    <span className="font-semibold text-black">{f.name}</span>
+                                    {/* Compact badge summary on mobile */}
+                                    <div className="flex flex-wrap gap-1 mt-1 sm:hidden">
+                                        {f.traits.slice(0, 2).map((t) => <Badge key={t} variant="trait">{getTraitLabel(t)}</Badge>)}
+                                        {f.traits.length > 2 && <span className="text-[10px] text-steel self-center">+{f.traits.length - 2}</span>}
+                                        {f.roles.slice(0, 2).map((r) => <Badge key={r} variant="role">{getRoleLabel(r)}</Badge>)}
+                                        {f.roles.length > 2 && <span className="text-[10px] text-steel self-center">+{f.roles.length - 2}</span>}
+                                    </div>
+                                </td>
                                 <td className="py-3.5 px-5 hidden sm:table-cell">
                                     {f.figureType && (
                                         <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${FIGURE_TYPE_COLOURS[f.figureType] || ""}`}>
@@ -145,12 +154,12 @@ export default function ComparativeTable({ onFigureClick }) {
                                 <td className="py-3.5 px-5 text-steel text-xs">{f.culture}</td>
                                 <td className="py-3.5 px-5 text-steel text-xs hidden md:table-cell">{f.region}</td>
                                 <td className="py-3.5 px-5 text-steel text-xs hidden lg:table-cell">{f.era}</td>
-                                <td className="py-3.5 px-5">
+                                <td className="py-3.5 px-5 hidden sm:table-cell">
                                     <div className="flex flex-wrap gap-1">
                                         {f.traits.map((t) => <Badge key={t} variant="trait">{getTraitLabel(t)}</Badge>)}
                                     </div>
                                 </td>
-                                <td className="py-3.5 px-5">
+                                <td className="py-3.5 px-5 hidden sm:table-cell">
                                     <div className="flex flex-wrap gap-1">
                                         {f.roles.map((r) => <Badge key={r} variant="role">{getRoleLabel(r)}</Badge>)}
                                     </div>

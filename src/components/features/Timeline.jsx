@@ -3,8 +3,12 @@ import { FIGURES } from "../../data/figures";
 import { getFigureTypeLabel, FIGURE_TYPE_COLOURS } from "../../data/labels";
 import Pill from "../ui/Pill";
 
+function formatNumber(n) {
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 function formatYear(y) {
-    if (y < 0) return `${Math.abs(y).toLocaleString()} BCE`;
+    if (y < 0) return `${formatNumber(Math.abs(y))} BCE`;
     return `${y} CE`;
 }
 
