@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 
 export const TABS = [
-    { id: "home", label: "Home", hash: "" },
     { id: "map", label: "Map", hash: "#map" },
     { id: "figures", label: "Figures", hash: "#figures" },
     { id: "timeline", label: "Timeline", hash: "#timeline" },

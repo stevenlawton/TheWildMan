@@ -2,6 +2,31 @@ import { Trees, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { TABS } from "../../hooks/useHashTab";
 
+const LEFT_IDS = new Set(["map", "timeline", "lineage"]);
+const LEFT_TABS = TABS.filter((t) => LEFT_IDS.has(t.id));
+const RIGHT_TABS = TABS.filter((t) => !LEFT_IDS.has(t.id));
+
+function TabButton({ tab, activeTab, setActiveTab, onClick }) {
+    return (
+        <button
+            onClick={onClick || (() => setActiveTab(tab.id))}
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            aria-controls={`tabpanel-${tab.id}`}
+            className={`relative px-3 py-1.5 text-sm transition-colors duration-200 ${
+                activeTab === tab.id
+                    ? "text-black font-medium"
+                    : "text-steel hover:text-black"
+            }`}
+        >
+            {tab.label}
+            <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-accent transition-all duration-200 ${
+                activeTab === tab.id ? "w-3/4" : "w-0"
+            }`} />
+        </button>
+    );
+}
+
 export default function Header({ activeTab, setActiveTab }) {
     const [scrolled, setScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -18,7 +43,7 @@ export default function Header({ activeTab, setActiveTab }) {
                 ? "bg-white/90 backdrop-blur-md shadow-sm"
                 : "bg-transparent"
         }`}>
-            <div className="mx-auto max-w-6xl px-4 py-4 flex items-center gap-6">
+            <div className="mx-auto max-w-6xl px-4 py-4 flex items-center">
                 <button
                     onClick={() => setActiveTab("home")}
                     className="flex items-center gap-2 group"
@@ -30,25 +55,15 @@ export default function Header({ activeTab, setActiveTab }) {
                     </span>
                 </button>
 
-                <nav className="ml-auto hidden md:flex gap-1" role="tablist">
-                    {TABS.map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            role="tab"
-                            aria-selected={activeTab === tab.id}
-                            aria-controls={`tabpanel-${tab.id}`}
-                            className={`relative px-3 py-1.5 text-sm transition-colors duration-200 ${
-                                activeTab === tab.id
-                                    ? "text-black font-medium"
-                                    : "text-steel hover:text-black"
-                            }`}
-                        >
-                            {tab.label}
-                            <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-accent transition-all duration-200 ${
-                                activeTab === tab.id ? "w-3/4" : "w-0"
-                            }`} />
-                        </button>
+                <nav className="hidden md:flex gap-1 ml-4" role="tablist" aria-label="Visualisations">
+                    {LEFT_TABS.map((tab) => (
+                        <TabButton key={tab.id} tab={tab} activeTab={activeTab} setActiveTab={setActiveTab} />
+                    ))}
+                </nav>
+
+                <nav className="hidden md:flex gap-1 ml-auto" role="tablist" aria-label="Data">
+                    {RIGHT_TABS.map((tab) => (
+                        <TabButton key={tab.id} tab={tab} activeTab={activeTab} setActiveTab={setActiveTab} />
                     ))}
                 </nav>
 
