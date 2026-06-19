@@ -3,11 +3,12 @@ name: Release
 # Cut a release by pushing a version tag:
 #   npm version patch   # (or minor / major) -> bumps package.json, commits, tags
 #   git push --follow-tags
-# This builds the lib, publishes it to npm (public), and creates a GitHub
-# Release for the tag. Consumers (stevenlawton.com + others) then just
-# `npm install the-wild-man@<version>`.
+# Builds the lib, publishes to npm via Trusted Publishing (OIDC - NO token),
+# and creates a GitHub Release. Consumers then `npm install the-wild-man@<v>`.
 #
-# Requires repo secret NPM_TOKEN (an npm automation/publish token).
+# One-time setup on npmjs.com: package the-wild-man -> Settings ->
+# Trusted Publisher -> add  org/user: stevenlawton, repo: TheWildMan,
+# workflow: release.yml,  allowed action: npm publish.
 
 on:
   push:
@@ -16,7 +17,7 @@ on:
 
 permissions:
   contents: write # create the GitHub Release
-  id-token: write # npm provenance (public repo)
+  id-token: write # OIDC for npm Trusted Publishing (provenance is automatic)
 
 jobs:
   release:
@@ -26,9 +27,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          registry-url: "https://registry.npmjs.org"
+          node-version: "22"
           cache: "npm"
+
+      - name: Use npm >= 11.5.1 (required for trusted publishing)
+        run: npm install -g npm@latest
 
       - name: Install
         run: npm ci
@@ -36,10 +39,8 @@ jobs:
       - name: Build library
         run: npm run build:lib
 
-      - name: Publish to npm
-        run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish to npm (Trusted Publishing / OIDC - no token)
+        run: npm publish
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
