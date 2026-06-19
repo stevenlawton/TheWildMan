@@ -1,8 +1,11 @@
 name: Deploy to GitHub Pages
 
 on:
-  push:
-    branches: [ master ]
+  # Push-triggered GitHub Pages deploy is DISABLED during the lib migration:
+  # stevenlawton.com will consume TheWildMan as a published package, and the
+  # canonical SEO home is stevenlawton.com/wildman (a GH Pages copy would be
+  # duplicate content). Run manually from the Actions tab only if a demo is
+  # needed - and that demo must <link rel=canonical> to stevenlawton.com.
   workflow_dispatch:
 
 permissions:
