@@ -3,21 +3,43 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "description": "A cross-cultural Wild Man folklore dataset and interactive visualisations (map, timeline, family tree).",
+  "license": "MIT",
+  "main": "./dist-lib/wildman.js",
+  "module": "./dist-lib/wildman.js",
+  "types": "./dist-lib/wildman.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist-lib/wildman.js"
+    },
+    "./figures.json": "./src/data/figures.json",
+    "./tree.json": "./src/data/tree.json",
+    "./sources.json": "./src/data/sources.json"
+  },
+  "files": [
+    "dist-lib",
+    "src/data/figures.json",
+    "src/data/tree.json",
+    "src/data/sources.json"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "npm run build:client && npm run build:server && npm run build:prerender",
     "build:client": "vite build",
     "build:server": "vite build --ssr src/entry-server.jsx --outDir dist/server",
     "build:prerender": "node scripts/prerender.js",
+    "build:lib": "vite build --config vite.lib.config.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "normalize": "bash scripts/normalize-unicode.sh src/",
     "normalize:check": "bash scripts/normalize-unicode.sh --check src/"
   },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
   "dependencies": {
     "lucide-react": "^0.542.0",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
     "topojson-client": "^3.1.0",
     "world-atlas": "^2.0.2"
   },
@@ -33,6 +55,8 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
     "postcss": "^8.5.6",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
     "tailwindcss": "^4.1.12",
     "vite": "^7.1.2"
   }
