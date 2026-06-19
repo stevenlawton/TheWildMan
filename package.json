@@ -1,10 +1,14 @@
 {
   "name": "the-wild-man",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "description": "A cross-cultural Wild Man folklore dataset and interactive visualisations (map, timeline, family tree).",
   "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/stevenlawton/TheWildMan.git" },
+  "homepage": "https://stevenlawton.com/wildman/",
+  "bugs": "https://github.com/stevenlawton/TheWildMan/issues",
+  "keywords": ["folklore", "wild-man", "mythology", "react", "visualisation", "dataset"],
+  "publishConfig": { "access": "public" },
   "main": "./dist-lib/wildman.js",
   "module": "./dist-lib/wildman.js",
   "types": "./dist-lib/wildman.d.ts",
@@ -18,6 +22,7 @@
   },
   "files": [
     "dist-lib",
+    "public/images",
     "src/data/figures.json",
     "src/data/tree.json",
     "src/data/sources.json"
@@ -29,6 +34,7 @@
     "build:server": "vite build --ssr src/entry-server.jsx --outDir dist/server",
     "build:prerender": "node scripts/prerender.js",
     "build:lib": "vite build --config vite.lib.config.js",
+    "prepublishOnly": "npm run build:lib",
     "lint": "eslint .",
     "preview": "vite preview",
     "normalize": "bash scripts/normalize-unicode.sh src/",

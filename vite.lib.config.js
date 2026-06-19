@@ -8,6 +8,10 @@ import react from "@vitejs/plugin-react";
 // import. Separate from the app/demo build (vite.config.js).
 export default defineConfig({
   plugins: [react()],
+  // Don't copy public/ into the lib output - figure images are shipped
+  // explicitly via package.json "files" (public/images) instead, keeping
+  // dist-lib to just the bundle.
+  publicDir: false,
   build: {
     outDir: "dist-lib",
     emptyOutDir: true,

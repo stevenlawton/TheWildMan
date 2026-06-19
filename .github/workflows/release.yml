@@ -1,0 +1,47 @@
+name: Release
+
+# Cut a release by pushing a version tag:
+#   npm version patch   # (or minor / major) -> bumps package.json, commits, tags
+#   git push --follow-tags
+# This builds the lib, publishes it to npm (public), and creates a GitHub
+# Release for the tag. Consumers (stevenlawton.com + others) then just
+# `npm install the-wild-man@<version>`.
+#
+# Requires repo secret NPM_TOKEN (an npm automation/publish token).
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write # create the GitHub Release
+  id-token: write # npm provenance (public repo)
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+          cache: "npm"
+
+      - name: Install
+        run: npm ci
+
+      - name: Build library
+        run: npm run build:lib
+
+      - name: Publish to npm
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
